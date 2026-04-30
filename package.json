@@ -1,0 +1,24 @@
+{
+  "name": "webrogue",
+  "version": "0.1.0",
+  "description": "A small statically checked DSL for browser-based roguelike scripting.",
+  "type": "module",
+  "bin": {
+    "webrogue": "./src/webrogue.js"
+  },
+  "scripts": {
+    "test": "node --test test",
+    "compile": "node src/webrogue.js"
+  },
+  "keywords": [
+    "compiler",
+    "dsl",
+    "roguelike",
+    "ohm"
+  ],
+  "author": "Jacob Martinez",
+  "license": "MIT",
+  "dependencies": {
+    "ohm-js": "^17.1.0"
+  }
+}

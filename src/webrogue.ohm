@@ -1,0 +1,129 @@
+WebRogue {
+  Program     = Stmt*
+
+  Stmt        = VarDecl
+              | Assignment
+              | PrintStmt
+              | IfStmt
+              | WhileStmt
+              | BreakStmt
+              | ReturnStmt
+              | FunctionDecl
+              | EntityDecl
+              | RoomDecl
+              | ExpStmt
+
+  VarDecl     = let id TypeAnnotation? "=" Exp ";"
+  TypeAnnotation = ":" Type
+
+  Assignment  = id "=" Exp ";"
+  PrintStmt   = print Exp ";"
+  IfStmt      = if Exp Block ElsePart?
+  ElsePart    = else Block
+  WhileStmt   = while Exp Block
+  BreakStmt   = break ";"
+  ReturnStmt  = return Exp? ";"
+  ExpStmt     = Exp ";"
+
+  FunctionDecl = function id "(" Params? ")" ReturnType? Block
+  Params       = NonemptyListOf<Param, ",">
+  Param        = id ":" Type
+  ReturnType   = "->" Type
+
+  EntityDecl   = entity id "{" EntityField* "}"
+  EntityField  = id ":" Type "=" Exp ";"
+
+  RoomDecl     = room id "{" RoomField* "}"
+  RoomField    = title ":" string ";"                         --title
+               | description ":" string ";"                   --description
+               | contains ":" "[" IdList? "]" ";"             --contains
+  IdList       = NonemptyListOf<id, ",">
+
+  Block       = "{" Stmt* "}"
+
+  Type        = numberType                                     --number
+              | stringType                                     --string
+              | booleanType                                    --boolean
+              | voidType                                       --void
+              | id                                             --id
+
+  Exp         = OrExp
+
+  OrExp       = OrExp or AndExp                                --or
+              | AndExp
+
+  AndExp      = AndExp and EqualityExp                         --and
+              | EqualityExp
+
+  EqualityExp = EqualityExp "==" RelExp                        --eq
+              | EqualityExp "!=" RelExp                        --ne
+              | RelExp
+
+  RelExp      = RelExp "<=" AddExp                             --le
+              | RelExp "<" AddExp                              --lt
+              | RelExp ">=" AddExp                             --ge
+              | RelExp ">" AddExp                              --gt
+              | AddExp
+
+  AddExp      = AddExp "+" MulExp                              --plus
+              | AddExp "-" MulExp                              --minus
+              | MulExp
+
+  MulExp      = MulExp "*" UnaryExp                            --times
+              | MulExp "/" UnaryExp                            --divide
+              | MulExp "%" UnaryExp                            --mod
+              | UnaryExp
+
+  UnaryExp    = "-" UnaryExp                                   --neg
+              | not UnaryExp                                   --not
+              | CallExp
+
+  CallExp     = Primary "(" Args? ")"                          --call
+              | Primary
+
+  Args        = NonemptyListOf<Exp, ",">
+
+  Primary     = number                                         --number
+              | string                                         --string
+              | true                                           --true
+              | false                                          --false
+              | id                                             --id
+              | "(" Exp ")"                                   --parens
+
+  let         = "let" ~alnum
+  print       = "print" ~alnum
+  if          = "if" ~alnum
+  else        = "else" ~alnum
+  while       = "while" ~alnum
+  break       = "break" ~alnum
+  return      = "return" ~alnum
+  function    = "function" ~alnum
+  entity      = "entity" ~alnum
+  room        = "room" ~alnum
+  title       = "title" ~alnum
+  description = "description" ~alnum
+  contains    = "contains" ~alnum
+  true        = "true" ~alnum
+  false       = "false" ~alnum
+  and         = "and" ~alnum
+  or          = "or" ~alnum
+  not         = "not" ~alnum
+  numberType  = "number" ~alnum
+  stringType  = "string" ~alnum
+  booleanType = "boolean" ~alnum
+  voidType    = "void" ~alnum
+
+  id          = ~keyword letter alnum*
+  keyword     = let | print | if | else | while | break | return
+              | function | entity | room | title | description | contains
+              | numberType | stringType | booleanType | voidType
+              | true | false | and | or | not
+
+  number      = digit+ ("." digit+)?
+  string      = "\"" char* "\""
+  char        = ~"\\" ~"\"" ~"\n" any                         --plain
+              | "\\" ("\"" | "\\" | "n" | "t" | "r")          --escape
+
+  space      += comment
+  comment     = "//" (~"\n" any)*
+}

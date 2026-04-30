@@ -1,0 +1,22 @@
+entity Hero {
+  name: string = "Ada";
+  hp: number = 10;
+  alive: boolean = true;
+}
+
+room Start {
+  title: "Start";
+  description: "A stone room with one cautious lantern.";
+  contains: [Hero];
+}
+
+function greet(name: string) -> string {
+  return "Hello, " + name;
+}
+
+let turns: number = 0;
+print greet("delver");
+while turns < 2 {
+  print turns;
+  turns = turns + 1;
+}

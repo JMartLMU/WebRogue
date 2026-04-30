@@ -1,0 +1,37 @@
+entity Player {
+  name: string = "Mira";
+  hp: number = 12;
+  alive: boolean = true;
+}
+
+entity Slime {
+  name: string = "Slime";
+  hp: number = 4;
+  alive: boolean = true;
+}
+
+room Entry {
+  title: "Mossy Entry";
+  description: "Cold stairs descend into the first pocket of dungeon air.";
+  contains: [Player, Slime];
+}
+
+function damage(hp: number, amount: number) -> number {
+  return hp - amount;
+}
+
+let playerHp: number = 12;
+if playerHp > 0 {
+  print "ready";
+} else {
+  print "fallen";
+}
+
+while playerHp > 9 {
+  playerHp = damage(playerHp, 1);
+  if playerHp == 10 {
+    break;
+  }
+}
+
+print playerHp;
