@@ -61,7 +61,7 @@
           <article class="example">
             <h3>1. Hello World</h3>
             <pre><code>print "Hello World!";</code></pre>
-            <button onclick="compileAndRun(1)">Run Example</button>
+            <button onclick="compileAndRun(1, event)">Run Example</button>
             <div id="output-1" class="example-output">Output will appear here...</div>
           </article>
 
@@ -77,7 +77,7 @@ if alive {
   print heroName;
   print "enters the dungeon. Hello Adventurer!";
 }</code></pre>
-            <button onclick="compileAndRun(2)">Run Example</button>
+            <button onclick="compileAndRun(2, event)">Run Example</button>
             <div id="output-2" class="example-output">Output will appear here...</div>
           </article>
 
@@ -97,7 +97,7 @@ function describe(name: string, hp: number) -> string {
 
 let label: string = describe("Mira", 10);
 print label;</code></pre>
-            <button onclick="compileAndRun(3)">Run Example</button>
+            <button onclick="compileAndRun(3, event)">Run Example</button>
             <div id="output-3" class="example-output">Output will appear here...</div>
           </article>
 
@@ -121,12 +121,27 @@ choice(num, Attack, Heal) {
     print playerHp;
   }
 }</code></pre>
-            <button onclick="compileAndRun(4)">Run Example</button>
+            <button onclick="compileAndRun(4, event)">Run Example</button>
             <div id="output-4" class="example-output">Output will appear here...</div>
           </article>
 
           <article class="example">
-            <h3>5. States and Objects</h3>
+            <h3>5. Dialogue</h3>
+            <pre><code>state Example {
+  title: "Dialogue Example";
+  description: "A state with a short line-by-line CLI dialogue.";
+  contains: [];
+  dialogue(keyboard.space, "Press enter to continue reading", "first line", "middle line", "last line");
+}
+
+_jump(Example);
+print "dialogue complete";</code></pre>
+            <button onclick="compileAndRun(5, event)">Run Example</button>
+            <div id="output-5" class="example-output">Output will appear here...</div>
+          </article>
+
+          <article class="example">
+            <h3>6. States and Objects</h3>
             <pre><code>object Player {
   name: string = "Mira";
   hp: number = 12;
@@ -153,8 +168,132 @@ print "Start state is ready.";
 _jump(Hall);
 print "Jumped to Hall.";
 print "Two states are ready.";</code></pre>
-            <button onclick="compileAndRun(5)">Run Example</button>
-            <div id="output-5" class="example-output">Output will appear here...</div>
+            <button onclick="compileAndRun(6, event)">Run Example</button>
+            <div id="output-6" class="example-output">Output will appear here...</div>
+          </article>
+
+          <article class="example">
+            <h3>7. Combat</h3>
+            <pre><code>object Player {
+  name: string = "Mira";
+  hp: number = 12;
+  attack: number = 4;
+}
+
+object Slime {
+  name: string = "Slime";
+  hp: number = 6;
+  attack: number = 2;
+}
+
+function damage(base: number, bonus: number) -> number {
+  return base + bonus;
+}
+
+let hit: number = damage(4, 2);
+
+print "Damage resolved.";
+print hit;
+
+if hit > 5 {
+  print "Critical hit!";
+} else {
+  print "Normal hit.";
+}</code></pre>
+            <button onclick="compileAndRun(7, event)">Run Example</button>
+            <div id="output-7" class="example-output">Output will appear here...</div>
+          </article>
+
+          <article class="example">
+            <h3>8. Fibonacci</h3>
+            <pre><code>function fib(n: number) -> number {
+  if n <= 1 {
+    return n;
+  } else {
+    return fib(n - 1) + fib(n - 2);
+  }
+}
+
+let count: number = 10;
+let i: number = 0;
+
+while i < count {
+  print fib(i);
+  i = i + 1;
+}</code></pre>
+            <button onclick="compileAndRun(8, event)">Run Example</button>
+            <div id="output-8" class="example-output">Output will appear here...</div>
+          </article>
+
+          <article class="example">
+            <h3>9. Loop Break</h3>
+            <pre><code>let turns: number = 0;
+let hp: number = 10;
+
+while hp > 0 {
+  print "A turn passes.";
+  turns = turns + 1;
+  hp = hp - 2;
+
+  if turns == 3 {
+    break;
+  }
+}
+
+print "Combat ended.";</code></pre>
+            <button onclick="compileAndRun(9, event)">Run Example</button>
+            <div id="output-9" class="example-output">Output will appear here...</div>
+          </article>
+
+          <article class="example">
+            <h3>10. Tiny Dungeon</h3>
+            <pre><code>object Player {
+  name: string = "Mira";
+  hp: number = 12;
+  alive: boolean = true;
+}
+
+object Slime {
+  name: string = "Slime";
+  hp: number = 4;
+  alive: boolean = true;
+}
+
+state Start {
+  title: "Dungeon Start";
+  description: "A half-burned torch marks the safe edge of the dungeon.";
+  contains: [Player];
+}
+
+state Entry {
+  title: "Mossy Entry";
+  description: "Cold stairs descend into the first pocket of dungeon air.";
+  contains: [Player, Slime];
+}
+
+function damage(hp: number, amount: number) -> number {
+  return hp - amount;
+}
+
+let playerHp: number = 12;
+if playerHp > 0 {
+  print "ready";
+} else {
+  print "fallen";
+}
+
+while playerHp > 9 {
+  playerHp = damage(playerHp, 1);
+  if playerHp == 10 {
+    break;
+  }
+}
+
+_jump(Entry);
+print "entered Entry";
+print playerHp;</code></pre>
+            <button onclick="compileAndRun(10, event)">Run Example</button>
+            <div id="output-10" class="example-output">Output will appear here...</div>
           </article>
         </div>
       </section>
@@ -176,10 +315,7 @@ print "Two states are ready.";</code></pre>
       A WebRogue companion page for the GitHub repository by Jacob Martinez.
     </footer>
 
-    <script type="module">
-      // Import the WebRogue compiler modules
-      import compile from './compiler.js';
-
+    <script>
       // Example code for each example
       const examples = [
         `print "Hello World!";`,
@@ -225,6 +361,15 @@ choice(num, Attack, Heal) {
     print playerHp;
   }
 }`,
+        `state Example {
+  title: "Dialogue Example";
+  description: "A state with a short line-by-line CLI dialogue.";
+  contains: [];
+  dialogue(keyboard.space, "Press enter to continue reading", "first line", "middle line", "last line");
+}
+
+_jump(Example);
+print "dialogue complete";`,
         `object Player {
   name: string = "Mira";
   hp: number = 12;
@@ -250,11 +395,114 @@ state Hall {
 print "Start state is ready.";
 _jump(Hall);
 print "Jumped to Hall.";
-print "Two states are ready.";`
+print "Two states are ready.";`,
+        `object Player {
+  name: string = "Mira";
+  hp: number = 12;
+  attack: number = 4;
+}
+
+object Slime {
+  name: string = "Slime";
+  hp: number = 6;
+  attack: number = 2;
+}
+
+function damage(base: number, bonus: number) -> number {
+  return base + bonus;
+}
+
+let hit: number = damage(4, 2);
+
+print "Damage resolved.";
+print hit;
+
+if hit > 5 {
+  print "Critical hit!";
+} else {
+  print "Normal hit.";
+}
+`,
+        `function fib(n: number) -> number {
+  if n <= 1 {
+    return n;
+  } else {
+    return fib(n - 1) + fib(n - 2);
+  }
+}
+
+let count: number = 10;
+let i: number = 0;
+
+while i < count {
+  print fib(i);
+  i = i + 1;
+}`,
+        `let turns: number = 0;
+let hp: number = 10;
+
+while hp > 0 {
+  print "A turn passes.";
+  turns = turns + 1;
+  hp = hp - 2;
+
+  if turns == 3 {
+    break;
+  }
+}
+
+print "Combat ended.";`,
+        `object Player {
+  name: string = "Mira";
+  hp: number = 12;
+  alive: boolean = true;
+}
+
+object Slime {
+  name: string = "Slime";
+  hp: number = 4;
+  alive: boolean = true;
+}
+
+state Start {
+  title: "Dungeon Start";
+  description: "A half-burned torch marks the safe edge of the dungeon.";
+  contains: [Player];
+}
+
+state Entry {
+  title: "Mossy Entry";
+  description: "Cold stairs descend into the first pocket of dungeon air.";
+  contains: [Player, Slime];
+}
+
+function damage(hp: number, amount: number) -> number {
+  return hp - amount;
+}
+
+let playerHp: number = 12;
+if playerHp > 0 {
+  print "ready";
+} else {
+  print "fallen";
+}
+
+while playerHp > 9 {
+  playerHp = damage(playerHp, 1);
+  if playerHp == 10 {
+    break;
+  }
+}
+
+_jump(Entry);
+print "entered Entry";
+print playerHp;`
       ];
 
+      let compile;
+
       // Mock input handler for browser environment
-      globalThis.__webrogueReadLineHost = async (prompt) => {
+      window.__webrogueReadLineHost = async (prompt) => {
         // For choice menus, simulate user input
         if (prompt.includes("Choose") || prompt.includes("action")) {
           return "1"; // Always choose first option
@@ -262,23 +510,25 @@ print "Two states are ready.";`
         return ""; // Default empty input
       };
 
-      // Expose the compiler and examples to global scope
-      window.compileAndRun = async function(exampleIndex) {
+      // Function to run an example
+      window.compileAndRun = async function(exampleIndex, event) {
         const outputDiv = document.getElementById(`output-${exampleIndex}`);
-        const button = event.target;
+        const button = event ? event.target : null;
         
-        // Disable button and show loading
-        button.disabled = true;
-        button.textContent = "Running...";
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Running...";
+        }
         outputDiv.textContent = "Compiling and running...";
         outputDiv.classList.remove("error");
 
         try {
+          if (!compile) {
+            throw new Error("Compiler not loaded yet. Reload page and try again.");
+          }
+
           const source = examples[exampleIndex - 1];
-          console.log("Source code:", source);
-          
           const jsCode = compile(source, "js");
-          console.log("Compiled JS:", jsCode.substring(0, 200));
 
           // Create a function from the generated JavaScript
           const compiledFunction = new Function(jsCode);
@@ -287,31 +537,33 @@ print "Two states are ready.";`
           let output = "";
           const originalLog = console.log;
           console.log = (...args) => {
-            const line = args.join(" ");
-            console.error("CAPTURED OUTPUT:", line);
-            output += line + "\n";
+            output += args.join(" ") + "\n";
           };
 
           // Run the compiled code
-          const result = await compiledFunction();
-          console.error("Function returned:", result);
+          await compiledFunction();
 
           // Restore console.log
           console.log = originalLog;
 
-          const finalOutput = output.trim();
-          console.error("Final output:", finalOutput);
-          outputDiv.textContent = finalOutput || "Program completed successfully (no output)";
+          outputDiv.textContent = output.trim() || "Program completed successfully (no output)";
         } catch (error) {
-          console.error("Error during execution:", error);
           outputDiv.textContent = `Error: ${error.message}`;
           outputDiv.classList.add("error");
         } finally {
-          // Re-enable button
-          button.disabled = false;
-          button.textContent = "Run Example";
+          if (button) {
+            button.disabled = false;
+            button.textContent = "Run Example";
+          }
         }
       };
+
+      // Load the compiler dynamically
+      import('./compiler.js').then(mod => {
+        compile = mod.default;
+      }).catch(err => {
+        console.error('Failed to load compiler:', err);
+      });
     </script>
   </body>
 </html>
