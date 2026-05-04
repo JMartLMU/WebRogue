@@ -1,0 +1,15 @@
+function fib(n: number) -> number {
+  if n <= 1 {
+    return n;
+  } else {
+    return fib(n - 1) + fib(n - 2);
+  }
+}
+
+let count: number = 10;
+let i: number = 0;
+
+while i < count {
+  print fib(i);
+  i = i + 1;
+}
