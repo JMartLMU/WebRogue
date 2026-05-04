@@ -1,0 +1,2 @@
+let hp: number = "twelve";
+print hp;

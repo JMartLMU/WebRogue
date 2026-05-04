@@ -2,10 +2,51 @@ export default function generate(program) {
   const output = []
   let indent = 0
 
+  const reservedWords = new Set([
+    "await",
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "enum",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "null",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+  ])
+
   const targetName = (mapping => entity => {
     if (!mapping.has(entity)) {
       const base = entity.name.replace(/[^\p{L}\p{N}_$]/gu, "_")
-      mapping.set(entity, `${base}_${mapping.size + 1}`)
+      mapping.set(entity, reservedWords.has(base) ? `_${base}` : base)
     }
     return mapping.get(entity)
   })(new Map())
@@ -74,35 +115,27 @@ export default function generate(program) {
     },
 
     EntityDeclaration(d) {
-      emit(`const ${targetName(d.entity)} = Object.freeze({`)
-      indent += 1
-      emit(`type: "entity",`)
-      emit(`name: ${JSON.stringify(d.name)},`)
-      emit("fields: Object.freeze({")
+      emit(`const ${targetName(d.entity)} = {`)
       indent += 1
       for (const field of d.fields) {
         emit(`${field.name}: ${gen(field.initializer)},`)
       }
       indent -= 1
-      emit("}),")
-      indent -= 1
-      emit("});")
+      emit("};")
     },
 
     RoomDeclaration(d) {
       const field = name => d.fields.find(f => f.name === name)
-      const title = field("title")?.value ?? ""
-      const description = field("description")?.value ?? ""
-      const contains = field("contains")?.entities ?? []
-      emit(`const ${targetName(d.room)} = Object.freeze({`)
+      const title = field("title").value
+      const description = field("description").value
+      const contains = field("contains").entities
+      emit(`const ${targetName(d.room)} = {`)
       indent += 1
-      emit(`type: "room",`)
-      emit(`name: ${JSON.stringify(d.name)},`)
       emit(`title: ${JSON.stringify(title)},`)
       emit(`description: ${JSON.stringify(description)},`)
       emit(`contains: [${contains.map(targetName).join(", ")}],`)
       indent -= 1
-      emit("});")
+      emit("};")
     },
 
     ExpressionStatement(s) {

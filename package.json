@@ -1,13 +1,15 @@
 {
   "name": "webrogue",
-  "version": "0.1.0",
-  "description": "A small statically checked DSL for browser-based roguelike scripting.",
+  "version": "1.0.0",
+  "description": "A small statically checked DSL for browser roguelike scripting.",
   "type": "module",
+  "main": "src/webrogue.js",
   "bin": {
-    "webrogue": "./src/webrogue.js"
+    "webrogue": "src/webrogue.js"
   },
   "scripts": {
-    "test": "node --test test",
+    "test": "c8 node --test test/*.test.js",
+    "coverage": "c8 node --test test/*.test.js",
     "compile": "node src/webrogue.js"
   },
   "keywords": [
@@ -18,7 +20,18 @@
   ],
   "author": "Jacob Martinez",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JMartLMU/WebRogue.git"
+  },
+  "homepage": "https://github.com/JMartLMU/WebRogue#readme",
   "dependencies": {
     "ohm-js": "^17.1.0"
+  },
+  "devDependencies": {
+    "c8": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

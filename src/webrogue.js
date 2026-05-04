@@ -1,11 +1,12 @@
 #! /usr/bin/env node
 
 import * as fs from "node:fs/promises"
+import { pathToFileURL } from "node:url"
 import compile from "./compiler.js"
 
 const outputTypes = new Set(["parsed", "analyzed", "optimized", "js"])
 
-const help = `WebRogue compiler
+export const help = `WebRogue compiler
 
 Syntax: webrogue <filename> [outputType]
 
@@ -13,7 +14,7 @@ outputType may be parsed, analyzed, optimized, or js.
 The default outputType is js.
 `
 
-function stringify(value) {
+export function stringify(value) {
   if (typeof value === "string") return value
   const seen = new WeakSet()
   return JSON.stringify(
@@ -30,21 +31,27 @@ function stringify(value) {
   )
 }
 
-async function compileFromFile(filename, outputType) {
+export async function compileFromFile(filename, outputType = "js", io = console) {
   try {
     const source = await fs.readFile(filename, "utf8")
-    console.log(stringify(compile(source, outputType)))
+    io.log(stringify(compile(source, outputType)))
+    return 0
   } catch (error) {
-    console.error(`\u001b[31m${error.message}\u001b[39m`)
-    process.exitCode = 1
+    io.error(`\u001b[31m${error.message}\u001b[39m`)
+    return 1
   }
 }
 
-const [, , filename, requestedOutputType = "js"] = process.argv
+export async function main(args = process.argv.slice(2), io = console) {
+  const [filename, requestedOutputType = "js"] = args
 
-if (filename && outputTypes.has(requestedOutputType)) {
-  await compileFromFile(filename, requestedOutputType)
-} else {
-  console.log(help)
-  process.exitCode = 2
+  if (filename && outputTypes.has(requestedOutputType)) {
+    return compileFromFile(filename, requestedOutputType, io)
+  }
+  io.log(help)
+  return 2
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exitCode = await main()
 }

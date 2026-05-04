@@ -1,0 +1,23 @@
+entity Player {
+  name: string = "Mira";
+  hp: number = 12;
+}
+
+entity Key {
+  name: string = "Rusty Key";
+  hp: number = 0;
+}
+
+room Entrance {
+  title: "Dungeon Entrance";
+  description: "Cold air leaks from the stone archway.";
+  contains: [Player, Key];
+}
+
+room Hall {
+  title: "Long Hall";
+  description: "The hallway bends into darkness.";
+  contains: [Player];
+}
+
+print "Two rooms are ready.";

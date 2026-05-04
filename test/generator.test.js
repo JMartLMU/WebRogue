@@ -42,28 +42,22 @@ describe("The generator", () => {
     assert.equal(
       compileToJs(source),
       dedent`
-const Hero_1 = Object.freeze({
-  type: "entity",
-  name: "Hero",
-  fields: Object.freeze({
-    hp: 3,
-    name: "Mira",
-    alive: true,
-  }),
-});
-const Start_2 = Object.freeze({
-  type: "room",
-  name: "Start",
+const Hero = {
+  hp: 3,
+  name: "Mira",
+  alive: true,
+};
+const Start = {
   title: "Start",
   description: "First room",
-  contains: [Hero_1],
-});
-let turns_3 = 0;
-function inc_4(x_5) {
-  return (x_5 + 1);
+  contains: [Hero],
+};
+let turns = 0;
+function inc(x) {
+  return (x + 1);
 }
-turns_3 = inc_4(turns_3);
-console.log(turns_3);
+turns = inc(turns);
+console.log(turns);
 `
     )
   })
@@ -81,14 +75,83 @@ console.log(turns_3);
     assert.equal(
       compileToJs(source),
       dedent`
-let hp_1 = 2;
-while ((hp_1 > 0)) {
-  if ((hp_1 === 1)) {
+let hp = 2;
+while ((hp > 0)) {
+  if ((hp === 1)) {
     break;
   }
-  hp_1 = (hp_1 - 1);
+  hp = (hp - 1);
 }
 `
     )
+  })
+
+  it("generates JavaScript similar to the hello example", () => {
+    const source = `
+      print "Welcome to WebRogue!";
+      let heroName: string = "Mira";
+      let hp: number = 12;
+      let alive: boolean = true;
+      if alive {
+        print heroName;
+        print "enters the dungeon.";
+      }
+    `
+    assert.equal(
+      compileToJs(source),
+      dedent`
+console.log("Welcome to WebRogue!");
+let heroName = "Mira";
+let hp = 12;
+let alive = true;
+if (alive) {
+  console.log(heroName);
+  console.log("enters the dungeon.");
+}
+`
+    )
+  })
+
+  it("generates JavaScript for else branches", () => {
+    assert.equal(
+      compileToJs('let alive = true; if alive { print "up"; } else { print "down"; }'),
+      dedent`
+let alive = true;
+if (alive) {
+  console.log("up");
+} else {
+  console.log("down");
+}
+`
+    )
+  })
+
+  it("generates JavaScript for expression statements and unary expressions", () => {
+    assert.equal(
+      compileToJs(`
+        function tick() {
+          return;
+        }
+        tick();
+        let hp = 1;
+        print -hp;
+        let alive = true;
+        print not alive;
+      `),
+      dedent`
+function tick() {
+  return;
+}
+tick();
+let hp = 1;
+console.log((-hp));
+let alive = true;
+console.log((!alive));
+`
+    )
+  })
+
+  it("keeps JavaScript reserved words safe", () => {
+    assert.equal(compileToJs("let class = 1; print class;"), "let _class = 1;\nconsole.log(_class);")
   })
 })

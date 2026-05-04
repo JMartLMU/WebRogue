@@ -1,7 +1,16 @@
 import * as core from "./core.js"
 
 export default function optimize(node) {
-  if (Array.isArray(node)) return node.flatMap(optimize)
+  if (Array.isArray(node)) {
+    const optimized = []
+    for (const statement of node) {
+      const result = optimize(statement)
+      const statements = Array.isArray(result) ? result : [result]
+      optimized.push(...statements)
+      if (statementsTerminate(statements)) break
+    }
+    return optimized
+  }
   return optimizers[node?.kind]?.(node) ?? node
 }
 
@@ -16,10 +25,37 @@ function literalValue(node) {
 }
 
 function literalFrom(value, at) {
-  if (typeof value === "number") return core.numberLiteral(value, at)
-  if (typeof value === "string") return core.stringLiteral(value, at)
-  if (typeof value === "boolean") return core.booleanLiteral(value, at)
-  return value
+  return {
+    number: () => core.numberLiteral(value, at),
+    string: () => core.stringLiteral(value, at),
+    boolean: () => core.booleanLiteral(value, at),
+  }[typeof value]()
+}
+
+function isPure(node) {
+  if (
+    node?.kind === "NumberLiteral" ||
+    node?.kind === "StringLiteral" ||
+    node?.kind === "BooleanLiteral" ||
+    node?.kind === "IdentifierExpression"
+  ) {
+    return true
+  }
+  if (node?.kind === "UnaryExpression") return isPure(node.operand)
+  if (node?.kind === "BinaryExpression") return isPure(node.left) && isPure(node.right)
+  return false
+}
+
+function statementsTerminate(statements) {
+  return statements.some(statementTerminates)
+}
+
+function statementTerminates(statement) {
+  if (statement?.kind === "ReturnStatement" || statement?.kind === "BreakStatement") return true
+  if (statement?.kind === "IfStatement" && statement.alternate) {
+    return statementsTerminate(statement.consequent) && statementsTerminate(statement.alternate)
+  }
+  return false
 }
 
 const optimizers = {
@@ -128,11 +164,15 @@ const optimizers = {
       if (folded !== undefined) return literalFrom(folded, e.at)
     }
     if (e.op === "or") {
+      if (left === true) return e.left
       if (left === false) return e.right
+      if (right === true && isPure(e.left)) return e.right
       if (right === false) return e.left
     }
     if (e.op === "and") {
+      if (left === false) return e.left
       if (left === true) return e.right
+      if (right === false && isPure(e.left)) return e.right
       if (right === true) return e.left
     }
     if (e.op === "+" && right === 0) return e.left
@@ -140,6 +180,8 @@ const optimizers = {
     if (e.op === "-" && right === 0) return e.left
     if (e.op === "*" && right === 1) return e.left
     if (e.op === "*" && left === 1) return e.right
+    if (e.op === "*" && right === 0 && isPure(e.left)) return e.right
+    if (e.op === "*" && left === 0 && isPure(e.right)) return e.left
     return e
   },
 }

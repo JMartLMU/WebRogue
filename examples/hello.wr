@@ -1,22 +1,10 @@
-entity Hero {
-  name: string = "Ada";
-  hp: number = 10;
-  alive: boolean = true;
-}
+print "Welcome to WebRogue!";
 
-room Start {
-  title: "Start";
-  description: "A stone room with one cautious lantern.";
-  contains: [Hero];
-}
+let heroName: string = "Mira";
+let hp: number = 12;
+let alive: boolean = true;
 
-function greet(name: string) -> string {
-  return "Hello, " + name;
-}
-
-let turns: number = 0;
-print greet("delver");
-while turns < 2 {
-  print turns;
-  turns = turns + 1;
+if alive {
+  print heroName;
+  print "enters the dungeon.";
 }

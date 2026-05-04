@@ -1,0 +1,14 @@
+function isAlive(hp: number) -> boolean {
+  return hp > 0;
+}
+
+function describe(name: string, hp: number) -> string {
+  if isAlive(hp) {
+    return name;
+  } else {
+    return "fallen";
+  }
+}
+
+let label: string = describe("Mira", 10);
+print label;

@@ -19,7 +19,7 @@ class Context {
 }
 
 function messageAt(node) {
-  return typeof node?.at === "string" ? node.at : ""
+  return node.at
 }
 
 function must(condition, message, node) {
@@ -36,10 +36,6 @@ function isNumber(e) {
 
 function isString(e) {
   return e.type === core.stringType
-}
-
-function isBoolean(e) {
-  return e.type === core.booleanType
 }
 
 function isVoid(type) {
@@ -115,6 +111,22 @@ export default function analyze(program) {
 
   function analyzeStatements(statements) {
     return statements.map(statement => analyzeStatement(statement))
+  }
+
+  function blockReturnsOnEveryPath(statements) {
+    return statements.some(statementReturnsOnEveryPath)
+  }
+
+  function statementReturnsOnEveryPath(statement) {
+    if (statement.kind === "ReturnStatement") return true
+    if (statement.kind === "IfStatement") {
+      return (
+        statement.alternate &&
+        blockReturnsOnEveryPath(statement.consequent) &&
+        blockReturnsOnEveryPath(statement.alternate)
+      )
+    }
+    return false
   }
 
   function analyzeStatement(statement) {
@@ -216,6 +228,11 @@ export default function analyze(program) {
         }
         return analyzeStatements(d.body)
       })
+      must(
+        isVoid(returnType) || blockReturnsOnEveryPath(d.body),
+        `Function ${d.name} must return a value on every path`,
+        d
+      )
       fun.body = d.body
       return d
     },
@@ -259,6 +276,9 @@ export default function analyze(program) {
             return entity
           })
         }
+      }
+      for (const requiredField of ["title", "description", "contains"]) {
+        must(fieldNames.has(requiredField), `Room ${d.name} is missing ${requiredField}`, d)
       }
       d.room = symbol
       symbol.fields = d.fields

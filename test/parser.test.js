@@ -1,6 +1,16 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import parse from "../src/parser.js"
+
+const goodExampleFiles = [
+  "hello.wr",
+  "combat.wr",
+  "rooms.wr",
+  "loop.wr",
+  "functions.wr",
+  "tiny-dungeon.wr",
+]
 
 const syntaxChecks = [
   ["empty program", ""],
@@ -21,8 +31,15 @@ const syntaxChecks = [
     'entity Hero { hp: number = 10; } room Start { title: "Start"; description: "Here"; contains: [Hero]; }',
   ],
   ["operator precedence", "print 2 + 3 * 4 > 10 and not false;"],
+  ["greater-than-or-equal", "print 5 >= 4;"],
   ["function calls", "function f(x: number) -> number { return x; } print f(1);"],
   ["comments", "let x = 1; // a comment\nprint x;"],
+  ["escaped strings", 'print "line\\nquote: \\"";'],
+  ["parenthesized expressions", "print (1 + 2) * 3;"],
+  [
+    "custom type annotation syntax",
+    "entity Hero { hp: number = 10; } let active: Hero = Hero;",
+  ],
 ]
 
 const syntaxErrors = [
@@ -38,6 +55,18 @@ describe("The parser", () => {
       assert.equal(parse(source).kind, "Program")
     })
   }
+
+  for (const file of goodExampleFiles) {
+    it(`matches example ${file}`, () => {
+      const source = readFileSync(new URL(`../examples/${file}`, import.meta.url), "utf8")
+      assert.equal(parse(source).kind, "Program")
+    })
+  }
+
+  it("matches the negative type example before semantic analysis", () => {
+    const source = readFileSync(new URL("../examples/errors/bad-type.wr", import.meta.url), "utf8")
+    assert.equal(parse(source).kind, "Program")
+  })
 
   for (const [scenario, source, errorPattern] of syntaxErrors) {
     it(`throws on ${scenario}`, () => {

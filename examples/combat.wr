@@ -1,0 +1,23 @@
+entity Player {
+  name: string = "Mira";
+  hp: number = 12;
+  attack: number = 4;
+}
+
+entity Slime {
+  name: string = "Slime";
+  hp: number = 6;
+  attack: number = 2;
+}
+
+function damage(base: number, bonus: number) -> number {
+  return base + bonus;
+}
+
+let hit: number = damage(4, 2);
+
+if hit > 5 {
+  print "Critical hit!";
+} else {
+  print "Normal hit.";
+}

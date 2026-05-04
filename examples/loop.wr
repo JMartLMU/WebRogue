@@ -1,0 +1,14 @@
+let turns: number = 0;
+let hp: number = 10;
+
+while hp > 0 {
+  print "A turn passes.";
+  turns = turns + 1;
+  hp = hp - 2;
+
+  if turns == 3 {
+    break;
+  }
+}
+
+print "Combat ended.";
