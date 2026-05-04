@@ -240,8 +240,8 @@ node src/webrogue.js examples/hello.wr run
 
 ```text
 Welcome to WebRogue!
-Mira
-enters the dungeon.
+Adventurer
+enters the dungeon. Hello Adventurer!
 ```
 
 ```sh
