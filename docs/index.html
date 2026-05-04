@@ -558,12 +558,22 @@ print playerHp;`
         }
       };
 
-      // Load the compiler dynamically
-      import('./compiler.js').then(mod => {
-        compile = mod.default;
-      }).catch(err => {
-        console.error('Failed to load compiler:', err);
-      });
+      // Load the compiler dynamically, with a fallback path if the first import fails.
+      async function loadCompiler() {
+        const candidates = ['./compiler.js', './docs/compiler.js', 'compiler.js', 'docs/compiler.js'];
+        for (const path of candidates) {
+          try {
+            const mod = await import(path);
+            compile = mod.default;
+            return;
+          } catch (err) {
+            console.warn(`Failed to load compiler from ${path}:`, err);
+          }
+        }
+        console.error('Failed to load compiler from all candidate paths.');
+      }
+
+      loadCompiler();
     </script>
   </body>
 </html>
