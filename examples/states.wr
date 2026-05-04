@@ -20,5 +20,7 @@ state Hall {
   contains: [Player];
 }
 
+print "Start state is ready.";
 _jump(Hall);
+print "Jumped to Hall.";
 print "Two states are ready.";

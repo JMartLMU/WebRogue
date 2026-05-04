@@ -41,4 +41,5 @@ while playerHp > 9 {
 }
 
 _jump(Entry);
+print "entered Entry";
 print playerHp;

@@ -181,6 +181,30 @@ npm test
 
 `npm test` runs the Node test runner through `c8`, so the test output includes coverage reporting.
 
+## Quick Start: Run One Example
+
+From the project root, run the smallest example directly in the terminal:
+
+```sh
+node src/webrogue.js examples/hello.wr run
+```
+
+You should see:
+
+```text
+Welcome to WebRogue!
+Mira
+enters the dungeon.
+```
+
+That command parses, analyzes, optimizes, generates JavaScript, and executes the generated JavaScript so WebRogue `print` statements appear as terminal output.
+
+To inspect the JavaScript instead of running it, use `js`:
+
+```sh
+node src/webrogue.js examples/hello.wr js
+```
+
 ## Run The Compiler
 
 ```sh
@@ -194,12 +218,79 @@ node src/webrogue.js examples/hello.wr parsed
 node src/webrogue.js examples/combat.wr analyzed
 node src/webrogue.js examples/loop.wr optimized
 node src/webrogue.js examples/states.wr js
+node src/webrogue.js examples/tiny-dungeon.wr run
 ```
 
 You can also use the npm script:
 
 ```sh
 npm run compile -- examples/tiny-dungeon.wr js
+npm run compile -- examples/tiny-dungeon.wr run
+```
+
+Use `js` when you want to inspect the generated JavaScript. Use `run` when you want visual proof from the program's own `print` statements.
+
+## Expected Example Output
+
+These are quick command-line sanity checks:
+
+```sh
+node src/webrogue.js examples/hello.wr run
+```
+
+```text
+Welcome to WebRogue!
+Mira
+enters the dungeon.
+```
+
+```sh
+node src/webrogue.js examples/combat.wr run
+```
+
+```text
+Damage resolved.
+6
+Critical hit!
+```
+
+```sh
+node src/webrogue.js examples/states.wr run
+```
+
+```text
+Start state is ready.
+Jumped to Hall.
+Two states are ready.
+```
+
+```sh
+node src/webrogue.js examples/tiny-dungeon.wr run
+```
+
+```text
+ready
+entered Entry
+10
+```
+
+```sh
+node src/webrogue.js examples/loop.wr run
+```
+
+```text
+A turn passes.
+A turn passes.
+A turn passes.
+Combat ended.
+```
+
+```sh
+node src/webrogue.js examples/functions.wr run
+```
+
+```text
+Mira
 ```
 
 ## Compiler Pipeline
@@ -208,6 +299,7 @@ npm run compile -- examples/tiny-dungeon.wr js
 - `analyzed`: resolves names, checks types and context rules, and annotates the representation.
 - `optimized`: applies conservative AST optimizations such as constant folding and dead-code removal.
 - `js`: emits readable JavaScript.
+- `run`: generates JavaScript and executes it so `print` statements appear in the terminal.
 
 The implementation follows the course's Carlos-style flow:
 
@@ -219,26 +311,27 @@ parse -> analyze -> optimize -> generate
 
 ```text
 .
-├── docs/
-├── examples/
-├── src/
-│   ├── webrogue.js
-│   ├── webrogue.ohm
-│   ├── compiler.js
-│   ├── parser.js
-│   ├── core.js
-│   ├── analyzer.js
-│   ├── optimizer.js
-│   └── generator.js
-├── test/
-│   ├── compiler.test.js
-│   ├── parser.test.js
-│   ├── analyzer.test.js
-│   ├── optimizer.test.js
-│   └── generator.test.js
-├── HANDOFF.md
-├── package.json
-└── README.md
+|-- docs/
+|-- examples/
+|-- src/
+|   |-- webrogue.js
+|   |-- webrogue.ohm
+|   |-- compiler.js
+|   |-- parser.js
+|   |-- core.js
+|   |-- analyzer.js
+|   |-- optimizer.js
+|   `-- generator.js
+|-- test/
+|   |-- compiler.test.js
+|   |-- parser.test.js
+|   |-- analyzer.test.js
+|   |-- optimizer.test.js
+|   |-- generator.test.js
+|   `-- examples.test.js
+|-- HANDOFF.md
+|-- package.json
+`-- README.md
 ```
 
 The companion site source is in `docs/index.html`, with `docs/WebRogue.png` as the project logo.

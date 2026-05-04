@@ -7,7 +7,7 @@ import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import compile from "../src/compiler.js"
 import * as core from "../src/core.js"
-import { compileFromFile, help, main, stringify } from "../src/webrogue.js"
+import { compileFromFile, help, main, runJavaScript, stringify } from "../src/webrogue.js"
 
 const source = 'let name = "Mira"; print name;'
 
@@ -31,6 +31,12 @@ describe("The compiler", () => {
 
   it("generates JavaScript by default", () => {
     assert.equal(compile(source), 'let name = "Mira";\nconsole.log(name);')
+  })
+
+  it("runs generated JavaScript through the CLI runner", () => {
+    const lines = []
+    runJavaScript('console.log("ok", 7);', { log: line => lines.push(line) })
+    assert.deepEqual(lines, ["ok 7"])
   })
 
   it("stringifies analyzed output without circular references or source locations", () => {
@@ -70,6 +76,23 @@ describe("The compiler", () => {
       })
       assert.equal(code, 0)
       assert.equal(lines.join("\n"), 'let name = "Mira";\nconsole.log(name);')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it("runs a source file and prints the program output", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "webrogue-"))
+    const file = join(directory, "program.wr")
+    const lines = []
+    try {
+      await writeFile(file, source)
+      const code = await compileFromFile(file, "run", {
+        log: text => lines.push(text),
+        error: text => lines.push(text),
+      })
+      assert.equal(code, 0)
+      assert.deepEqual(lines, ["Mira"])
     } finally {
       await rm(directory, { recursive: true, force: true })
     }

@@ -16,6 +16,9 @@ function damage(base: number, bonus: number) -> number {
 
 let hit: number = damage(4, 2);
 
+print "Damage resolved.";
+print hit;
+
 if hit > 5 {
   print "Critical hit!";
 } else {

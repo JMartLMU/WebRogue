@@ -17,7 +17,7 @@
 - Optimize: `src/optimizer.js` rewrites the analyzed representation.
 - Generate: `src/generator.js` emits readable JavaScript.
 - Compile: `src/compiler.js` connects the four phases.
-- CLI: `src/webrogue.js` supports `parsed`, `analyzed`, `optimized`, and `js`.
+- CLI: `src/webrogue.js` supports `parsed`, `analyzed`, `optimized`, `js`, and `run`.
 
 ## Implemented Language Features
 
@@ -79,6 +79,7 @@ The test suite is organized by compiler phase:
 - `test/optimizer.test.js`
 - `test/generator.test.js`
 - `test/compiler.test.js`
+- `test/examples.test.js`
 
 Run everything with coverage:
 
@@ -86,7 +87,7 @@ Run everything with coverage:
 npm test
 ```
 
-Current status after the object/state migration: 118 tests pass with 100% statement, branch, function, and line coverage across `src/`.
+Current status after the CLI run-mode and example-output sanity tests: 126 tests pass with 100% statement, branch, function, and line coverage across `src/`.
 
 ## Known Limitations
 
