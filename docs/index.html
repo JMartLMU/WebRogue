@@ -58,106 +58,102 @@
 
         <div class="example-grid">
           <article class="example">
-            <h3>1. Minimal start state</h3>
-            <pre><code>object Hero {
-  name: string = "Ari";
-  hp: number = 10;
-  alive: boolean = true;
+            <h3>1. Hello World</h3>
+            <pre><code>print "Hello World!";</code></pre>
+            <button onclick="runExample(1)">Run Example</button>
+            <div id="output-1" class="example-output"></div>
+          </article>
+
+          <article class="example">
+            <h3>2. Introduction</h3>
+            <pre><code>print "Welcome to WebRogue!";
+
+let heroName: string = "Adventurer";
+let hp: number = 12;
+let alive: boolean = true;
+
+if alive {
+  print heroName;
+  print "enters the dungeon. Hello Adventurer!";
+}</code></pre>
+            <button onclick="runExample(2)">Run Example</button>
+            <div id="output-2" class="example-output"></div>
+          </article>
+
+          <article class="example">
+            <h3>3. Functions</h3>
+            <pre><code>function isAlive(hp: number) -> boolean {
+  return hp > 0;
+}
+
+function describe(name: string, hp: number) -> string {
+  if isAlive(hp) {
+    return name;
+  } else {
+    return "fallen";
+  }
+}
+
+let label: string = describe("Mira", 10);
+print label;</code></pre>
+            <button onclick="runExample(3)">Run Example</button>
+            <div id="output-3" class="example-output"></div>
+          </article>
+
+          <article class="example">
+            <h3>4. Choice Menu</h3>
+            <pre><code>let playerHp: number = 10;
+let enemyHp: number = 6;
+
+print "Choose an action:";
+
+choice(num, Attack, Heal) {
+  option Attack {
+    enemyHp = enemyHp - 2;
+    print "Attacked.";
+    print enemyHp;
+  }
+
+  option Heal {
+    playerHp = playerHp + 2;
+    print "Healed.";
+    print playerHp;
+  }
+}</code></pre>
+            <button onclick="runExample(4)">Run Example</button>
+            <div id="output-4" class="example-output"></div>
+          </article>
+
+          <article class="example">
+            <h3>5. States and Objects</h3>
+            <pre><code>object Player {
+  name: string = "Mira";
+  hp: number = 12;
+}
+
+object Key {
+  name: string = "Rusty Key";
+  hp: number = 0;
 }
 
 state Start {
-  title: "A Quiet Camp";
-  description: "A fire crackles while hunters prepare to leave.";
-  contains: [Hero];
+  title: "Dungeon Entrance";
+  description: "Cold air leaks from the stone archway.";
+  contains: [Player, Key];
 }
 
-_jump(Start);
-</code></pre>
-          </article>
-
-          <article class="example">
-            <h3>2. Dialogue and choice</h3>
-            <pre><code>object Guide {
-  name: string = "Ena";
-  hp: number = 8;
-  alive: boolean = true;
+state Hall {
+  title: "Long Hall";
+  description: "The hallway bends into darkness.";
+  contains: [Player];
 }
 
-state Entrance {
-  title: "Mossy Gate";
-  description: "A lantern hangs from twisted iron.";
-  contains: [Guide];
-  dialogue(keyboard.space, "Press space to continue", "You stand before the gate.", "Ena whispers, 'Choose carefully.'");
-}
-
-state Decision {
-  title: "Crossroads";
-  description: "Three paths fan out under the pines.";
-  contains: [Guide];
-}
-
-_jump(Entrance);
-choice(num, Forward, Back) {
-  option Forward { _jump(Decision); }
-  option Back { print "You turn back to safety."; }
-}
-</code></pre>
-          </article>
-
-          <article class="example">
-            <h3>3. Typed function with return</h3>
-            <pre><code>function heal(amount: number) -> number {
-  if amount < 0 {
-    return 0;
-  } else {
-    return amount + 5;
-  }
-}
-
-let currentHp: number = 3;
-currentHp = heal(currentHp);
-
-if currentHp > 7 {
-  print "Ready for the fight.";
-} else {
-  print "Weakened but steady.";
-}
-</code></pre>
-          </article>
-
-          <article class="example">
-            <h3>4. Loop with break</h3>
-            <pre><code>let count = 0;
-
-while count < 5 {
-  count = count + 1;
-  if count == 3 {
-    print "Third step reached.";
-    break;
-  }
-}
-
-print "Final count is " + count;
-</code></pre>
-          </article>
-
-          <article class="example">
-            <h3>5. State flow with objects and inference</h3>
-            <pre><code>object Potion {
-  name: string = "Potion";
-  hp: number = 4;
-  alive: boolean = true;
-}
-
-state Chamber {
-  title: "Crystal Chamber";
-  description: "Blue light washes over a stone dais.";
-  contains: [Potion];
-}
-
-let nextState = Chamber;
-_jump(nextState);
-</code></pre>
+print "Start state is ready.";
+_jump(Hall);
+print "Jumped to Hall.";
+print "Two states are ready.";</code></pre>
+            <button onclick="runExample(5)">Run Example</button>
+            <div id="output-5" class="example-output"></div>
           </article>
         </div>
       </section>
@@ -177,5 +173,135 @@ _jump(nextState);
     <footer>
       A WebRogue companion page for the GitHub repository by Jacob Martinez.
     </footer>
+
+    <script type="module">
+      // Import the WebRogue compiler modules
+      import compile from './compiler.js';
+
+      // Example code for each example
+      const examples = [
+        `print "Hello World!";`,
+        `print "Welcome to WebRogue!";
+
+let heroName: string = "Adventurer";
+let hp: number = 12;
+let alive: boolean = true;
+
+if alive {
+  print heroName;
+  print "enters the dungeon. Hello Adventurer!";
+}`,
+        `function isAlive(hp: number) -> boolean {
+  return hp > 0;
+}
+
+function describe(name: string, hp: number) -> string {
+  if isAlive(hp) {
+    return name;
+  } else {
+    return "fallen";
+  }
+}
+
+let label: string = describe("Mira", 10);
+print label;`,
+        `let playerHp: number = 10;
+let enemyHp: number = 6;
+
+print "Choose an action:";
+
+choice(num, Attack, Heal) {
+  option Attack {
+    enemyHp = enemyHp - 2;
+    print "Attacked.";
+    print enemyHp;
+  }
+
+  option Heal {
+    playerHp = playerHp + 2;
+    print "Healed.";
+    print playerHp;
+  }
+}`,
+        `object Player {
+  name: string = "Mira";
+  hp: number = 12;
+}
+
+object Key {
+  name: string = "Rusty Key";
+  hp: number = 0;
+}
+
+state Start {
+  title: "Dungeon Entrance";
+  description: "Cold air leaks from the stone archway.";
+  contains: [Player, Key];
+}
+
+state Hall {
+  title: "Long Hall";
+  description: "The hallway bends into darkness.";
+  contains: [Player];
+}
+
+print "Start state is ready.";
+_jump(Hall);
+print "Jumped to Hall.";
+print "Two states are ready.";`
+      ];
+
+      // Mock input handler for browser environment
+      globalThis.__webrogueReadLineHost = async (prompt) => {
+        // For choice menus, simulate user input
+        if (prompt.includes("Choose") || prompt.includes("action")) {
+          return "1"; // Always choose first option
+        }
+        return ""; // Default empty input
+      };
+
+      // Function to run an example
+      window.runExample = async function(exampleIndex) {
+        const outputDiv = document.getElementById(`output-${exampleIndex}`);
+        const button = event.target;
+        
+        // Disable button and show loading
+        button.disabled = true;
+        button.textContent = "Running...";
+        outputDiv.textContent = "Compiling and running...";
+        outputDiv.style.display = "block";
+        outputDiv.classList.remove("error");
+
+        try {
+          const source = examples[exampleIndex - 1];
+          const jsCode = compile(source, "js");
+
+          // Create a function from the generated JavaScript
+          const compiledFunction = new Function(jsCode);
+
+          // Capture console.log output
+          let output = "";
+          const originalLog = console.log;
+          console.log = (...args) => {
+            output += args.join(" ") + "\n";
+          };
+
+          // Run the compiled code
+          await compiledFunction();
+
+          // Restore console.log
+          console.log = originalLog;
+
+          outputDiv.textContent = output.trim() || "Program completed (no output)";
+        } catch (error) {
+          outputDiv.textContent = `Error: ${error.message}`;
+          outputDiv.classList.add("error");
+        } finally {
+          // Re-enable button
+          button.disabled = false;
+          button.textContent = "Run Example";
+        }
+      };
+    </script>
   </body>
 </html>

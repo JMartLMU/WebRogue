@@ -183,3 +183,38 @@ nav.actions a {
 nav.actions a:hover {
   transform: translateY(-1px);
 }
+
+/* Example buttons and output */
+.example button {
+  background: var(--cool);
+  color: var(--bg);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 180ms ease;
+}
+
+.example button:hover {
+  background: #5bb39e;
+}
+
+.example-output {
+  display: none;
+  margin-top: 12px;
+  padding: 12px;
+  background: #0b1311;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  color: var(--ink);
+}
+
+.example-output.error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
