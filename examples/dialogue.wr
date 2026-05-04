@@ -2,7 +2,7 @@ state Example {
   title: "Dialogue Example";
   description: "A state with a short line-by-line CLI dialogue.";
   contains: [];
-  dialogue(keyboard.space, "Press space to progress dialogue", "first line", "middle line", "last line");
+  dialogue(keyboard.space, "Press enter to continue reading", "first line", "middle line", "last line");
 }
 
 _jump(Example);
