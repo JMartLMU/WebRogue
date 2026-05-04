@@ -275,7 +275,10 @@ print "Two states are ready.";`
 
         try {
           const source = examples[exampleIndex - 1];
+          console.log("Source code:", source);
+          
           const jsCode = compile(source, "js");
+          console.log("Compiled JS:", jsCode.substring(0, 200));
 
           // Create a function from the generated JavaScript
           const compiledFunction = new Function(jsCode);
@@ -284,17 +287,23 @@ print "Two states are ready.";`
           let output = "";
           const originalLog = console.log;
           console.log = (...args) => {
-            output += args.join(" ") + "\n";
+            const line = args.join(" ");
+            console.error("CAPTURED OUTPUT:", line);
+            output += line + "\n";
           };
 
           // Run the compiled code
-          await compiledFunction();
+          const result = await compiledFunction();
+          console.error("Function returned:", result);
 
           // Restore console.log
           console.log = originalLog;
 
-          outputDiv.textContent = output.trim() || "Program completed successfully (no output)";
+          const finalOutput = output.trim();
+          console.error("Final output:", finalOutput);
+          outputDiv.textContent = finalOutput || "Program completed successfully (no output)";
         } catch (error) {
+          console.error("Error during execution:", error);
           outputDiv.textContent = `Error: ${error.message}`;
           outputDiv.classList.add("error");
         } finally {
