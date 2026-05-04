@@ -43,12 +43,12 @@ export default function generate(program) {
     "yield",
   ])
 
-  const targetName = (mapping => entity => {
-    if (!mapping.has(entity)) {
-      const base = entity.name.replace(/[^\p{L}\p{N}_$]/gu, "_")
-      mapping.set(entity, reservedWords.has(base) ? `_${base}` : base)
+  const targetName = (mapping => declaration => {
+    if (!mapping.has(declaration)) {
+      const base = declaration.name.replace(/[^\p{L}\p{N}_$]/gu, "_")
+      mapping.set(declaration, reservedWords.has(base) ? `_${base}` : base)
     }
-    return mapping.get(entity)
+    return mapping.get(declaration)
   })(new Map())
 
   function emit(line = "") {
@@ -67,6 +67,15 @@ export default function generate(program) {
 
   const generators = {
     Program(p) {
+      if (p.defaultStateName) {
+        emit(`let __webrogueCurrentState = ${JSON.stringify(p.defaultStateName)};`)
+        emit("function _jump(targetState) {")
+        indent += 1
+        emit("__webrogueCurrentState = targetState;")
+        emit("return __webrogueCurrentState;")
+        indent -= 1
+        emit("}")
+      }
       p.statements.forEach(gen)
     },
 
@@ -106,6 +115,10 @@ export default function generate(program) {
       emit(s.expression ? `return ${gen(s.expression)};` : "return;")
     },
 
+    JumpStatement(s) {
+      emit(`_jump(${JSON.stringify(s.targetName)});`)
+    },
+
     FunctionDeclaration(d) {
       const name = targetName(d.fun)
       const params = d.params.map(param => targetName(param.variable)).join(", ")
@@ -114,8 +127,8 @@ export default function generate(program) {
       emit("}")
     },
 
-    EntityDeclaration(d) {
-      emit(`const ${targetName(d.entity)} = {`)
+    ObjectDeclaration(d) {
+      emit(`const ${targetName(d.object)} = {`)
       indent += 1
       for (const field of d.fields) {
         emit(`${field.name}: ${gen(field.initializer)},`)
@@ -124,12 +137,12 @@ export default function generate(program) {
       emit("};")
     },
 
-    RoomDeclaration(d) {
+    StateDeclaration(d) {
       const field = name => d.fields.find(f => f.name === name)
       const title = field("title").value
       const description = field("description").value
-      const contains = field("contains").entities
-      emit(`const ${targetName(d.room)} = {`)
+      const contains = field("contains").objects
+      emit(`const ${targetName(d.state)} = {`)
       indent += 1
       emit(`title: ${JSON.stringify(title)},`)
       emit(`description: ${JSON.stringify(description)},`)
@@ -143,7 +156,7 @@ export default function generate(program) {
     },
 
     IdentifierExpression(e) {
-      return targetName(e.entity)
+      return targetName(e.declaration)
     },
 
     CallExpression(e) {

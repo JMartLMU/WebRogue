@@ -71,6 +71,10 @@ const astBuilder = grammar.createSemantics().addOperation("ast", {
     return core.returnStatement(optional(exp), location(this))
   },
 
+  JumpStmt(_jump, _open, id, _close, _semicolon) {
+    return core.jumpStatement(id.sourceString, location(this))
+  },
+
   ExpStmt(exp, _semicolon) {
     return core.expressionStatement(exp.ast(), location(this))
   },
@@ -97,36 +101,36 @@ const astBuilder = grammar.createSemantics().addOperation("ast", {
     return type.ast()
   },
 
-  EntityDecl(_entity, id, _open, fields, _close) {
-    return core.entityDeclaration(
+  ObjectDecl(_object, id, _open, fields, _close) {
+    return core.objectDeclaration(
       id.sourceString,
       fields.children.map(field => field.ast()),
       location(this)
     )
   },
 
-  EntityField(id, _colon, type, _eq, exp, _semicolon) {
-    return core.entityField(id.sourceString, type.ast(), exp.ast(), location(this))
+  ObjectField(id, _colon, type, _eq, exp, _semicolon) {
+    return core.objectField(id.sourceString, type.ast(), exp.ast(), location(this))
   },
 
-  RoomDecl(_room, id, _open, fields, _close) {
-    return core.roomDeclaration(
+  StateDecl(_state, id, _open, fields, _close) {
+    return core.stateDeclaration(
       id.sourceString,
       fields.children.map(field => field.ast()),
       location(this)
     )
   },
 
-  RoomField_title(_title, _colon, string, _semicolon) {
-    return core.roomField("title", string.ast().value, location(this))
+  StateField_title(_title, _colon, string, _semicolon) {
+    return core.stateField("title", string.ast().value, location(this))
   },
 
-  RoomField_description(_description, _colon, string, _semicolon) {
-    return core.roomField("description", string.ast().value, location(this))
+  StateField_description(_description, _colon, string, _semicolon) {
+    return core.stateField("description", string.ast().value, location(this))
   },
 
-  RoomField_contains(_contains, _colon, _open, ids, _close, _semicolon) {
-    return core.roomField("contains", optionalList(ids), location(this))
+  StateField_contains(_contains, _colon, _open, ids, _close, _semicolon) {
+    return core.stateField("contains", optionalList(ids), location(this))
   },
 
   IdList(ids) {

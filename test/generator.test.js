@@ -22,16 +22,17 @@ function dedent(strings) {
 describe("The generator", () => {
   it("generates JavaScript for game declarations and functions", () => {
     const source = `
-      entity Hero {
+      object Hero {
         hp: number = 3;
         name: string = "Mira";
         alive: boolean = true;
       }
-      room Start {
+      state Start {
         title: "Start";
-        description: "First room";
+        description: "First state";
         contains: [Hero];
       }
+      _jump(Start);
       let turns: number = 0;
       function inc(x: number) -> number {
         return x + 1;
@@ -42,6 +43,11 @@ describe("The generator", () => {
     assert.equal(
       compileToJs(source),
       dedent`
+let __webrogueCurrentState = "Start";
+function _jump(targetState) {
+  __webrogueCurrentState = targetState;
+  return __webrogueCurrentState;
+}
 const Hero = {
   hp: 3,
   name: "Mira",
@@ -49,15 +55,34 @@ const Hero = {
 };
 const Start = {
   title: "Start",
-  description: "First room",
+  description: "First state",
   contains: [Hero],
 };
+_jump("Start");
 let turns = 0;
 function inc(x) {
   return (x + 1);
 }
 turns = inc(turns);
 console.log(turns);
+`
+    )
+  })
+
+  it("uses the first declared state when Start is absent", () => {
+    assert.equal(
+      compileToJs('state Entry { title: "Entry"; description: "Here"; contains: []; }'),
+      dedent`
+let __webrogueCurrentState = "Entry";
+function _jump(targetState) {
+  __webrogueCurrentState = targetState;
+  return __webrogueCurrentState;
+}
+const Entry = {
+  title: "Entry",
+  description: "Here",
+  contains: [],
+};
 `
     )
   })

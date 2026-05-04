@@ -105,18 +105,18 @@ const optimizers = {
     return d
   },
 
-  EntityDeclaration(d) {
+  ObjectDeclaration(d) {
     d.fields = d.fields.map(optimize)
-    if (d.entity) d.entity.fields = d.fields
+    if (d.object) d.object.fields = d.fields
     return d
   },
 
-  EntityField(f) {
+  ObjectField(f) {
     f.initializer = optimize(f.initializer)
     return f
   },
 
-  RoomDeclaration(d) {
+  StateDeclaration(d) {
     return d
   },
 

@@ -1,10 +1,10 @@
-entity Player {
+object Player {
   name: string = "Mira";
   hp: number = 12;
   attack: number = 4;
 }
 
-entity Slime {
+object Slime {
   name: string = "Slime";
   hp: number = 6;
   attack: number = 2;

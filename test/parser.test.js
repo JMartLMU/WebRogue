@@ -6,7 +6,7 @@ import parse from "../src/parser.js"
 const goodExampleFiles = [
   "hello.wr",
   "combat.wr",
-  "rooms.wr",
+  "states.wr",
   "loop.wr",
   "functions.wr",
   "tiny-dungeon.wr",
@@ -23,13 +23,14 @@ const syntaxChecks = [
   ["void function", "function tick() { return; }"],
   ["returning function", "function hurt(hp: number) -> number { return hp - 1; }"],
   [
-    "entity declaration",
-    'entity Hero { name: string = "Ada"; hp: number = 10; alive: boolean = true; }',
+    "object declaration",
+    'object Hero { name: string = "Ada"; hp: number = 10; alive: boolean = true; }',
   ],
   [
-    "room declaration",
-    'entity Hero { hp: number = 10; } room Start { title: "Start"; description: "Here"; contains: [Hero]; }',
+    "state declaration",
+    'object Hero { hp: number = 10; } state Start { title: "Start"; description: "Here"; contains: [Hero]; }',
   ],
+  ["state transition", 'state Start { title: "Start"; description: "Here"; contains: []; } _jump(Start);'],
   ["operator precedence", "print 2 + 3 * 4 > 10 and not false;"],
   ["greater-than-or-equal", "print 5 >= 4;"],
   ["function calls", "function f(x: number) -> number { return x; } print f(1);"],
@@ -38,7 +39,7 @@ const syntaxChecks = [
   ["parenthesized expressions", "print (1 + 2) * 3;"],
   [
     "custom type annotation syntax",
-    "entity Hero { hp: number = 10; } let active: Hero = Hero;",
+    "object Hero { hp: number = 10; } let active: Hero = Hero;",
   ],
 ]
 
@@ -46,7 +47,7 @@ const syntaxErrors = [
   ["missing semicolon", "let hp = 10", /Line 1, col 12/],
   ["keyword as identifier", "let while = 10;", /Line 1, col 5/],
   ["bad expression", "print * 5;", /Line 1, col 7/],
-  ["trailing comma in contains", 'room R { contains: [Hero,]; }', /Line 1, col 26/],
+  ["trailing comma in contains", 'state R { contains: [Hero,]; }', /Line 1, col 27/],
 ]
 
 describe("The parser", () => {

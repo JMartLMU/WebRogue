@@ -1,23 +1,24 @@
-entity Player {
+object Player {
   name: string = "Mira";
   hp: number = 12;
 }
 
-entity Key {
+object Key {
   name: string = "Rusty Key";
   hp: number = 0;
 }
 
-room Entrance {
+state Start {
   title: "Dungeon Entrance";
   description: "Cold air leaks from the stone archway.";
   contains: [Player, Key];
 }
 
-room Hall {
+state Hall {
   title: "Long Hall";
   description: "The hallway bends into darkness.";
   contains: [Player];
 }
 
-print "Two rooms are ready.";
+_jump(Hall);
+print "Two states are ready.";

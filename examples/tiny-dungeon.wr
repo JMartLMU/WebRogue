@@ -1,16 +1,22 @@
-entity Player {
+object Player {
   name: string = "Mira";
   hp: number = 12;
   alive: boolean = true;
 }
 
-entity Slime {
+object Slime {
   name: string = "Slime";
   hp: number = 4;
   alive: boolean = true;
 }
 
-room Entry {
+state Start {
+  title: "Dungeon Start";
+  description: "A half-burned torch marks the safe edge of the dungeon.";
+  contains: [Player];
+}
+
+state Entry {
   title: "Mossy Entry";
   description: "Cold stairs descend into the first pocket of dungeon air.";
   contains: [Player, Slime];
@@ -34,4 +40,5 @@ while playerHp > 9 {
   }
 }
 
+_jump(Entry);
 print playerHp;

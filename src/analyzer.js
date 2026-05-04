@@ -5,8 +5,8 @@ class Context {
     Object.assign(this, { parent, locals, inLoop, function: f })
   }
 
-  add(name, entity) {
-    this.locals.set(name, entity)
+  add(name, declaration) {
+    this.locals.set(name, declaration)
   }
 
   lookup(name) {
@@ -45,6 +45,7 @@ function isVoid(type) {
 export default function analyze(program) {
   let context = new Context()
   const gameDefinitionNames = new Set()
+  const knownStateDeclarations = new Map()
 
   function withChildContext(props, work) {
     const parent = context
@@ -58,16 +59,34 @@ export default function analyze(program) {
     must(!context.locals.has(name), `Identifier ${name} already declared`, node)
   }
 
-  function declare(name, entity, node) {
+  function declare(name, declaration, node) {
     mustNotAlreadyBeDeclaredHere(name, node)
-    context.add(name, entity)
-    return entity
+    context.add(name, declaration)
+    return declaration
   }
 
   function lookup(name, node) {
-    const entity = context.lookup(name)
-    must(entity, `Identifier ${name} not declared`, node)
-    return entity
+    const declaration = context.lookup(name)
+    must(declaration, `Identifier ${name} not declared`, node)
+    return declaration
+  }
+
+  function collectStateDeclarations(statements) {
+    for (const statement of statements) {
+      if (statement.kind === "StateDeclaration") {
+        must(
+          !knownStateDeclarations.has(statement.name),
+          `Game definition ${statement.name} already declared`,
+          statement
+        )
+        knownStateDeclarations.set(statement.name, statement)
+      } else if (statement.kind === "IfStatement") {
+        collectStateDeclarations(statement.consequent)
+        if (statement.alternate) collectStateDeclarations(statement.alternate)
+      } else if (statement.kind === "WhileStatement" || statement.kind === "FunctionDeclaration") {
+        collectStateDeclarations(statement.body)
+      }
+    }
   }
 
   function resolveType(typeNode, { allowVoid = false } = {}) {
@@ -75,13 +94,13 @@ export default function analyze(program) {
     if (core.primitiveTypes.has(typeNode.name)) {
       type = typeNode.name
     } else {
-      const entity = lookup(typeNode.name, typeNode)
+      const declaration = lookup(typeNode.name, typeNode)
       must(
-        entity.kind === "Entity" || entity.kind === "Room",
+        declaration.kind === "Object" || declaration.kind === "State",
         `${typeNode.name} is not a type`,
         typeNode
       )
-      type = entity.type
+      type = declaration.type
     }
     must(allowVoid || !isVoid(type), "Void is only valid as a function return type", typeNode)
     return type
@@ -139,7 +158,12 @@ export default function analyze(program) {
 
   const statementAnalyzers = {
     Program(p) {
+      collectStateDeclarations(p.statements)
       p.statements = analyzeStatements(p.statements)
+      p.defaultStateName =
+        knownStateDeclarations.get("Start")?.name ??
+        knownStateDeclarations.values().next().value?.name ??
+        null
       return p
     },
 
@@ -206,6 +230,11 @@ export default function analyze(program) {
       return s
     },
 
+    JumpStatement(s) {
+      must(knownStateDeclarations.has(s.targetName), `State ${s.targetName} not declared`, s)
+      return s
+    },
+
     FunctionDeclaration(d) {
       mustNotAlreadyBeDeclaredHere(d.name, d)
       const params = d.params.map(param => ({
@@ -237,10 +266,10 @@ export default function analyze(program) {
       return d
     },
 
-    EntityDeclaration(d) {
+    ObjectDeclaration(d) {
       must(!gameDefinitionNames.has(d.name), `Game definition ${d.name} already declared`, d)
       gameDefinitionNames.add(d.name)
-      const symbol = core.entity(d.name)
+      const symbol = core.object(d.name)
       declare(d.name, symbol, d)
       const fieldNames = new Set()
       d.fields = d.fields.map(field => {
@@ -252,35 +281,35 @@ export default function analyze(program) {
         return field
       })
       symbol.fields = d.fields
-      d.entity = symbol
+      d.object = symbol
       d.type = symbol.type
       return d
     },
 
-    RoomDeclaration(d) {
+    StateDeclaration(d) {
       must(!gameDefinitionNames.has(d.name), `Game definition ${d.name} already declared`, d)
       gameDefinitionNames.add(d.name)
-      const symbol = core.room(d.name)
+      const symbol = core.state(d.name)
       declare(d.name, symbol, d)
       const fieldNames = new Set()
       for (const field of d.fields) {
-        must(!fieldNames.has(field.name), `Room field ${field.name} already declared`, field)
+        must(!fieldNames.has(field.name), `State field ${field.name} already declared`, field)
         fieldNames.add(field.name)
         if (field.name === "contains") {
           const containedNames = new Set()
-          field.entities = field.value.map(id => {
-            must(!containedNames.has(id.name), `Entity ${id.name} appears more than once`, field)
+          field.objects = field.value.map(id => {
+            must(!containedNames.has(id.name), `Object ${id.name} appears more than once`, field)
             containedNames.add(id.name)
-            const entity = lookup(id.name, id)
-            must(entity.kind === "Entity", `${id.name} is not an entity`, id)
-            return entity
+            const object = lookup(id.name, id)
+            must(object.kind === "Object", `${id.name} is not an object`, id)
+            return object
           })
         }
       }
       for (const requiredField of ["title", "description", "contains"]) {
-        must(fieldNames.has(requiredField), `Room ${d.name} is missing ${requiredField}`, d)
+        must(fieldNames.has(requiredField), `State ${d.name} is missing ${requiredField}`, d)
       }
-      d.room = symbol
+      d.state = symbol
       symbol.fields = d.fields
       d.type = symbol.type
       return d
@@ -306,8 +335,8 @@ export default function analyze(program) {
     },
 
     IdentifierExpression(e) {
-      e.entity = lookup(e.name, e)
-      e.type = e.entity.type
+      e.declaration = lookup(e.name, e)
+      e.type = e.declaration.type
       return e
     },
 

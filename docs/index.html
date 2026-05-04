@@ -9,12 +9,12 @@
   <body>
     <header>
       <div class="brand">
-        <img src="logo.svg" alt="WebRogue torchlit doorway logo" />
+        <img src="WebRogue.png" alt="WebRogue logo" />
         <div>
           <h1>WebRogue</h1>
           <p class="tagline">
-            A compact statically checked language for browser roguelike scripts: declare entities,
-            wire rooms, write turn logic, and compile the result to readable JavaScript.
+            A compact statically checked language for browser roguelike scripts: declare objects,
+            wire states, jump between pages, and compile the result to readable JavaScript.
           </p>
         </div>
       </div>
@@ -31,11 +31,11 @@
         <div class="grid">
           <article class="tile">
             <h3>Game declarations</h3>
-            <p>Entities compile to JavaScript objects. Rooms require titles, descriptions, and entity references.</p>
+            <p>Objects compile to JavaScript objects. States require titles, descriptions, and object references.</p>
           </article>
           <article class="tile">
             <h3>Static checks</h3>
-            <p>Types, scopes, returns, breaks, calls, duplicate names, and room contents are checked before generation.</p>
+            <p>Types, scopes, returns, breaks, calls, duplicate names, state contents, and jumps are checked before generation.</p>
           </article>
           <article class="tile">
             <h3>Compiler phases</h3>
@@ -46,18 +46,19 @@
 
       <section>
         <h2>Example</h2>
-        <pre><code>entity Player {
+        <pre><code>object Player {
   name: string = "Mira";
   hp: number = 12;
 }
 
-room Entrance {
+state Start {
   title: "Dungeon Entrance";
   description: "Cold air leaks from the stone archway.";
   contains: [Player];
 }
 
-print "Two rooms are ready.";</code></pre>
+_jump(Start);
+print "The first state is ready.";</code></pre>
       </section>
 
       <section>
@@ -65,7 +66,7 @@ print "Two rooms are ready.";</code></pre>
         <div class="grid">
           <article class="tile">
             <h3>Working</h3>
-            <p>Primitive types, functions, control flow, entities, rooms, static analysis, optimization, and JS output.</p>
+            <p>Primitive types, functions, control flow, objects, states, checked jumps, static analysis, optimization, and JS output.</p>
           </article>
           <article class="tile warning">
             <h3>Not implemented</h3>

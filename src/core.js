@@ -22,12 +22,12 @@ export function functionType(paramTypes, returnType) {
   return { kind: "FunctionType", paramTypes, returnType }
 }
 
-export function entityType(name) {
-  return { kind: "EntityType", name }
+export function objectType(name) {
+  return { kind: "ObjectType", name }
 }
 
-export function roomType(name) {
-  return { kind: "RoomType", name }
+export function stateType(name) {
+  return { kind: "StateType", name }
 }
 
 export function variable(name, type) {
@@ -48,12 +48,12 @@ export function fun(name, params = [], returnType = voidType, body = []) {
   }
 }
 
-export function entity(name, type = entityType(name), fields = []) {
-  return { kind: "Entity", name, type, fields }
+export function object(name, type = objectType(name), fields = []) {
+  return { kind: "Object", name, type, fields }
 }
 
-export function room(name, type = roomType(name), fields = []) {
-  return { kind: "Room", name, type, fields }
+export function state(name, type = stateType(name), fields = []) {
+  return { kind: "State", name, type, fields }
 }
 
 export function variableDeclaration(name, typeAnnotation, initializer, at) {
@@ -92,20 +92,24 @@ export function parameter(name, typeAnnotation, at) {
   return { kind: "Parameter", name, typeAnnotation, at }
 }
 
-export function entityDeclaration(name, fields, at) {
-  return { kind: "EntityDeclaration", name, fields, at }
+export function objectDeclaration(name, fields, at) {
+  return { kind: "ObjectDeclaration", name, fields, at }
 }
 
-export function entityField(name, typeAnnotation, initializer, at) {
-  return { kind: "EntityField", name, typeAnnotation, initializer, at }
+export function objectField(name, typeAnnotation, initializer, at) {
+  return { kind: "ObjectField", name, typeAnnotation, initializer, at }
 }
 
-export function roomDeclaration(name, fields, at) {
-  return { kind: "RoomDeclaration", name, fields, at }
+export function stateDeclaration(name, fields, at) {
+  return { kind: "StateDeclaration", name, fields, at }
 }
 
-export function roomField(name, value, at) {
-  return { kind: "RoomField", name, value, at }
+export function stateField(name, value, at) {
+  return { kind: "StateField", name, value, at }
+}
+
+export function jumpStatement(targetName, at) {
+  return { kind: "JumpStatement", targetName, at }
 }
 
 export function expressionStatement(expression, at) {
@@ -150,7 +154,7 @@ export function equivalent(t1, t2) {
       equivalent(t1.returnType, t2.returnType)
     )
   }
-  if (t1?.kind === "EntityType" || t1?.kind === "RoomType") {
+  if (t1?.kind === "ObjectType" || t1?.kind === "StateType") {
     return t1.name === t2.name
   }
   return false
@@ -162,7 +166,7 @@ export function typeDescription(type) {
     const params = type.paramTypes.map(typeDescription).join(", ")
     return `(${params}) -> ${typeDescription(type.returnType)}`
   }
-  if (type?.kind === "EntityType") return `entity ${type.name}`
-  if (type?.kind === "RoomType") return `room ${type.name}`
+  if (type?.kind === "ObjectType") return `object ${type.name}`
+  if (type?.kind === "StateType") return `state ${type.name}`
   return String(type)
 }

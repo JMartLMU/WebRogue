@@ -49,13 +49,13 @@ describe("The compiler", () => {
   it("describes core types for diagnostics", () => {
     const numericFunction = core.functionType([core.numberType], core.stringType)
     assert.equal(core.typeDescription(numericFunction), "(number) -> string")
-    assert.equal(core.typeDescription(core.entityType("Hero")), "entity Hero")
-    assert.equal(core.typeDescription(core.roomType("Start")), "room Start")
+    assert.equal(core.typeDescription(core.objectType("Hero")), "object Hero")
+    assert.equal(core.typeDescription(core.stateType("Start")), "state Start")
     assert.equal(core.typeDescription({ kind: "Mystery" }), "[object Object]")
     assert(core.equivalent(numericFunction, core.functionType([core.numberType], core.stringType)))
     assert(!core.equivalent(numericFunction, core.functionType([core.stringType], core.stringType)))
     assert(!core.equivalent(undefined, core.numberType))
-    assert(!core.equivalent(core.entityType("Hero"), core.roomType("Start")))
+    assert(!core.equivalent(core.objectType("Hero"), core.stateType("Start")))
   })
 
   it("runs the CLI compiler helper successfully", async () => {

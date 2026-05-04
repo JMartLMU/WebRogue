@@ -9,8 +9,9 @@ WebRogue {
               | BreakStmt
               | ReturnStmt
               | FunctionDecl
-              | EntityDecl
-              | RoomDecl
+              | ObjectDecl
+              | StateDecl
+              | JumpStmt
               | ExpStmt
 
   VarDecl     = let id TypeAnnotation? "=" Exp ";"
@@ -23,6 +24,7 @@ WebRogue {
   WhileStmt   = while Exp Block
   BreakStmt   = break ";"
   ReturnStmt  = return Exp? ";"
+  JumpStmt    = jump "(" id ")" ";"
   ExpStmt     = Exp ";"
 
   FunctionDecl = function id "(" Params? ")" ReturnType? Block
@@ -30,11 +32,11 @@ WebRogue {
   Param        = id ":" Type
   ReturnType   = "->" Type
 
-  EntityDecl   = entity id "{" EntityField* "}"
-  EntityField  = id ":" Type "=" Exp ";"
+  ObjectDecl   = object id "{" ObjectField* "}"
+  ObjectField  = id ":" Type "=" Exp ";"
 
-  RoomDecl     = room id "{" RoomField* "}"
-  RoomField    = title ":" string ";"                         --title
+  StateDecl    = state id "{" StateField* "}"
+  StateField   = title ":" string ";"                         --title
                | description ":" string ";"                   --description
                | contains ":" "[" IdList? "]" ";"             --contains
   IdList       = NonemptyListOf<id, ",">
@@ -98,8 +100,9 @@ WebRogue {
   break       = "break" ~alnum
   return      = "return" ~alnum
   function    = "function" ~alnum
-  entity      = "entity" ~alnum
-  room        = "room" ~alnum
+  object      = "object" ~alnum
+  state       = "state" ~alnum
+  jump        = "_jump" ~alnum
   title       = "title" ~alnum
   description = "description" ~alnum
   contains    = "contains" ~alnum
@@ -115,7 +118,7 @@ WebRogue {
 
   id          = ~keyword letter alnum*
   keyword     = let | print | if | else | while | break | return
-              | function | entity | room | title | description | contains
+              | function | object | state | jump | title | description | contains
               | numberType | stringType | booleanType | voidType
               | true | false | and | or | not
 
