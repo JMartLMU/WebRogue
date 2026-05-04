@@ -133,3 +133,53 @@ footer {
   padding: 32px 0 48px;
   color: var(--muted);
 }
+
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.example {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.example h3 {
+  margin-bottom: 14px;
+}
+
+.profile {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.profile h2 {
+  margin-bottom: 10px;
+}
+
+section p {
+  max-width: 860px;
+}
+
+pre {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  background: #0b1311;
+}
+
+nav.actions a {
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+nav.actions a:hover {
+  transform: translateY(-1px);
+}

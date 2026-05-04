@@ -10,7 +10,8 @@
   "scripts": {
     "test": "c8 node --test test/*.test.js",
     "coverage": "c8 node --test test/*.test.js",
-    "compile": "node src/webrogue.js"
+    "compile": "node src/webrogue.js",
+    "build-docs": "node build-docs.js"
   },
   "keywords": [
     "compiler",

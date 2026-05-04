@@ -1,0 +1,10 @@
+print "Welcome to WebRogue!";
+
+let heroName: string = "Adventurer";
+let hp: number = 12;
+let alive: boolean = true;
+
+if alive {
+  print heroName;
+  print "enters the dungeon. Hello Adventurer!";
+}

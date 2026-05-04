@@ -4,6 +4,9 @@
 
 WebRogue is a small statically checked language for scripting browser roguelike games. It lets a game author describe dungeon objects and Ren'Py-inspired states beside ordinary turn logic, then compiles that script to readable JavaScript. The language is intentionally compact: enough static structure to be interesting for a compiler course, but not so large that the compiler hides the important ideas.
 
+## Companion website
+A companion home page for WebRogue is available in `docs/index.html`. It tells the language story, shows five complete example programs, includes developer bio information, and links directly to the compiler repository.
+
 ## Why WebRogue Exists
 
 Browser games often start as loose JavaScript objects and event handlers. WebRogue asks what that workflow might look like if the game script had a compiler watching for common mistakes first: misspelled object names, bad health types, broken return values, invalid state contents, and jumps to unknown states. The result is a toy language with a real compile-time safety story.
@@ -222,6 +225,7 @@ function damage(hp, amount) {
 
 More complete examples live in `examples/`:
 
+- `examples/intro.wr`
 - `examples/hello.wr`
 - `examples/combat.wr`
 - `examples/states.wr`
@@ -230,6 +234,7 @@ More complete examples live in `examples/`:
 - `examples/tiny-dungeon.wr`
 - `examples/choice.wr`
 - `examples/dialogue.wr`
+- `examples/fibonachi.wr`
 - `examples/errors/bad-type.wr` is intentionally invalid and should fail analysis.
 
 ## Install And Test
@@ -276,7 +281,7 @@ node src/webrogue.js <filename> <outputType>
 `outputType` may be omitted. The default is `js`.
 
 ```sh
-node src/webrogue.js examples/hello.wr parsed
+node src/webrogue.js examples/intro.wr parsed
 node src/webrogue.js examples/combat.wr analyzed
 node src/webrogue.js examples/loop.wr optimized
 node src/webrogue.js examples/states.wr js
@@ -300,6 +305,15 @@ These are quick command-line sanity checks:
 
 ```sh
 node src/webrogue.js examples/hello.wr run
+```
+
+```text
+Hello World!
+```
+
+
+```sh
+node src/webrogue.js examples/intro.wr run
 ```
 
 ```text
@@ -385,6 +399,23 @@ node src/webrogue.js examples/functions.wr run
 Mira
 ```
 
+```sh
+node src/webrogue.js examples/fibonachi.wr run
+```
+
+```text
+0
+1
+1
+2
+3
+5
+8
+13
+21
+34
+```
+
 ## Compiler Pipeline
 
 - `parsed`: parses source with the Ohm grammar and prints the AST-like representation.
@@ -427,6 +458,10 @@ parse -> analyze -> optimize -> generate
 ```
 
 The companion site source is in `docs/index.html`, with `docs/WebRogue.png` as the project logo.
+
+## Credits
+
+This project uses [Ohm](https://ohmjs.org) for much of the front end. Ohm is maintained by [Patrick Dubroy](https://github.com/sponsors/pdubroy).
 
 ## Handoff
 

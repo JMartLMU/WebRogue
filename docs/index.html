@@ -13,75 +13,169 @@
         <div>
           <h1>WebRogue</h1>
           <p class="tagline">
-            A compact statically checked language for browser roguelike scripts: declare objects,
-            wire states, progress dialogue, offer player choices, jump between pages, and compile the result to readable JavaScript.
+            WebRogue is a compact, statically checked scripting language for browser roguelike flow. It lets authors declare objects, define states, drive dialogue, create choices, and compile the result to clean JavaScript.
           </p>
         </div>
       </div>
+
       <nav class="actions" aria-label="Project links">
-        <a href="https://github.com/JMartLMU/WebRogue#readme">Read the language guide</a>
-        <a href="https://github.com/JMartLMU/WebRogue/blob/main/examples/hello.wr">Open an example</a>
-        <a href="https://github.com/JMartLMU/WebRogue">GitHub repository</a>
+        <a href="#about">Home</a>
+        <a href="#examples">Examples</a>
+        <a href="#developer">Developer</a>
+        <a href="https://github.com/JMartLMU/WebRogue">Compiler repository</a>
       </nav>
     </header>
 
     <main>
-      <section>
-        <h2>Language Shape</h2>
+      <section id="about">
+        <h2>About WebRogue</h2>
+        <p>WebRogue started as a compiler-construction project for browser game scripting. It is designed to make simple roguelike-style scenes easier to author by checking names, types, control flow, state transitions, and dialogue before the game ever runs.</p>
+        <p>The language blends a declarative page model with familiar imperative features. You can declare `object` and `state`, then use typed `let` bindings, `if` / `else`, `while`, `break`, `return`, functions, `_jump`, and `choice` to express game logic safely.</p>
+        <p>This site is a single-page companion for WebRogue: it tells the language story, showcases five complete example programs, explains the interesting static checks, and links directly back to the GitHub compiler repository.</p>
+      </section>
+
+      <section id="coverage">
+        <h2>Language coverage</h2>
         <div class="grid">
           <article class="tile">
-            <h3>Game declarations</h3>
-            <p>Objects compile to JavaScript objects. States require titles, descriptions, object references, and can include line-by-line dialogue.</p>
+            <h3>Declarations</h3>
+            <p>`object`, `state`, `function`, and `let` declarations are all checked for consistency before generation.</p>
           </article>
           <article class="tile">
-            <h3>Static checks</h3>
-            <p>Types, scopes, returns, breaks, calls, duplicate names, state contents, jumps, choice options, and dialogue input are checked before generation.</p>
+            <h3>Control flow</h3>
+            <p>`if` / `else`, `while`, `break`, `return`, and statically verified choice menus are all supported.</p>
           </article>
           <article class="tile">
-            <h3>Compiler phases</h3>
-            <p>The pipeline follows the Carlos model: parse, analyze, optimize, generate JavaScript, then optionally run it from the CLI.</p>
+            <h3>State &amp; flow</h3>
+            <p>States require `title`, `description`, and `contains`. `_jump` transitions are checked for valid state targets, and dialogue may be attached to states.</p>
           </article>
         </div>
       </section>
 
-      <section>
-        <h2>Example</h2>
-        <pre><code>object Player {
-  name: string = "Mira";
-  hp: number = 12;
+      <section id="examples">
+        <h2>Example programs</h2>
+        <p>Below are five complete WebRogue programs that exercise the language syntax and many of the interesting semantic checks.</p>
+
+        <div class="example-grid">
+          <article class="example">
+            <h3>1. Minimal start state</h3>
+            <pre><code>object Hero {
+  name: string = "Ari";
+  hp: number = 10;
+  alive: boolean = true;
 }
 
 state Start {
-  title: "Dungeon Entrance";
-  description: "Cold air leaks from the stone archway.";
-  contains: [Player];
-  dialogue(keyboard.space, "Press space", "First line", "Last line");
+  title: "A Quiet Camp";
+  description: "A fire crackles while hunters prepare to leave.";
+  contains: [Hero];
 }
 
 _jump(Start);
-choice(num, Attack, Rest) {
-  option Attack { print "Attack."; }
-  option Rest { print "Rest."; }
-}</code></pre>
+</code></pre>
+          </article>
+
+          <article class="example">
+            <h3>2. Dialogue and choice</h3>
+            <pre><code>object Guide {
+  name: string = "Ena";
+  hp: number = 8;
+  alive: boolean = true;
+}
+
+state Entrance {
+  title: "Mossy Gate";
+  description: "A lantern hangs from twisted iron.";
+  contains: [Guide];
+  dialogue(keyboard.space, "Press space to continue", "You stand before the gate.", "Ena whispers, 'Choose carefully.'");
+}
+
+state Decision {
+  title: "Crossroads";
+  description: "Three paths fan out under the pines.";
+  contains: [Guide];
+}
+
+_jump(Entrance);
+choice(num, Forward, Back) {
+  option Forward { _jump(Decision); }
+  option Back { print "You turn back to safety."; }
+}
+</code></pre>
+          </article>
+
+          <article class="example">
+            <h3>3. Typed function with return</h3>
+            <pre><code>function heal(amount: number) -> number {
+  if amount < 0 {
+    return 0;
+  } else {
+    return amount + 5;
+  }
+}
+
+let currentHp: number = 3;
+currentHp = heal(currentHp);
+
+if currentHp > 7 {
+  print "Ready for the fight.";
+} else {
+  print "Weakened but steady.";
+}
+</code></pre>
+          </article>
+
+          <article class="example">
+            <h3>4. Loop with break</h3>
+            <pre><code>let count = 0;
+
+while count < 5 {
+  count = count + 1;
+  if count == 3 {
+    print "Third step reached.";
+    break;
+  }
+}
+
+print "Final count is " + count;
+</code></pre>
+          </article>
+
+          <article class="example">
+            <h3>5. State flow with objects and inference</h3>
+            <pre><code>object Potion {
+  name: string = "Potion";
+  hp: number = 4;
+  alive: boolean = true;
+}
+
+state Chamber {
+  title: "Crystal Chamber";
+  description: "Blue light washes over a stone dais.";
+  contains: [Potion];
+}
+
+let nextState = Chamber;
+_jump(nextState);
+</code></pre>
+          </article>
+        </div>
       </section>
 
-      <section>
-        <h2>Implemented Scope</h2>
-        <div class="grid">
-          <article class="tile">
-            <h3>Working</h3>
-            <p>Primitive types, functions, control flow, objects, states, checked jumps, CLI choices, state dialogue, static analysis, optimization, and JS output.</p>
-          </article>
-          <article class="tile warning">
-            <h3>Not implemented</h3>
-            <p>General arrays, object literals, field access, imports, browser choice/dialogue widgets, browser runtime helpers, and a game engine runtime.</p>
-          </article>
+      <section id="developer">
+        <div class="profile">
+          <div>
+            <h2>Developer</h2>
+            <p><strong>Jacob Martinez</strong> built WebRogue as a compiler project that brings static checking to browser game scripting. The language is intentionally small but strong enough to catch broken state transitions, bad types, invalid choice menus, and non-returning functions before generation.</p>
+            <p>Jacob's work focuses on making program structure visible in a way that supports both author productivity and compiler correctness.</p>
+            <p>Find the compiler source on GitHub: <a href="https://github.com/JMartLMU/WebRogue">github.com/JMartLMU/WebRogue</a>.</p>
+          </div>
         </div>
       </section>
     </main>
 
     <footer>
-      WebRogue is an LMU compiler-construction project by Jacob Martinez.
+      A WebRogue companion page for the GitHub repository by Jacob Martinez.
     </footer>
   </body>
 </html>
