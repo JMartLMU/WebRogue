@@ -5,7 +5,7 @@
 WebRogue is a small statically checked language for scripting browser roguelike games. It lets a game author describe dungeon objects and Ren'Py-inspired states beside ordinary turn logic, then compiles that script to readable JavaScript. The language is intentionally compact: enough static structure to be interesting for a compiler course, but not so large that the compiler hides the important ideas.
 
 ## Companion website
-A companion home page for WebRogue is available in `docs/index.html`. It tells the language story, shows five complete example programs, includes developer bio information, and links directly to the compiler repository.
+A companion home page for WebRogue is available at [https://jmartlmu.github.io/WebRogue](https://jmartlmu.github.io/WebRogue). It tells the language story, shows five complete example programs, includes developer bio information, and links directly to the compiler repository.
 
 ## Why WebRogue Exists
 

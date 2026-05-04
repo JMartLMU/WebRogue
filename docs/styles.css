@@ -202,7 +202,6 @@ nav.actions a:hover {
 }
 
 .example-output {
-  display: none;
   margin-top: 12px;
   padding: 12px;
   background: #0b1311;
@@ -212,6 +211,14 @@ nav.actions a:hover {
   font-size: 14px;
   white-space: pre-wrap;
   color: var(--ink);
+  min-height: 40px;
+  display: block;
+}
+
+.example-output:empty::before {
+  content: "Click 'Run Example' to see output here";
+  color: var(--muted);
+  font-style: italic;
 }
 
 .example-output.error {

@@ -29,6 +29,7 @@
     <main>
       <section id="about">
         <h2>About WebRogue</h2>
+        <p>WebRogue was inspired by the difficulty of creating games as a begginner programmer using pygame in the Intro to Programming class at LMU. My difficulty with scripting and sharing led me to shape WebRogue into a lightweight language with features to mimmic a small game engine.</p>
         <p>WebRogue started as a compiler-construction project for browser game scripting. It is designed to make simple roguelike-style scenes easier to author by checking names, types, control flow, state transitions, and dialogue before the game ever runs.</p>
         <p>The language blends a declarative page model with familiar imperative features. You can declare `object` and `state`, then use typed `let` bindings, `if` / `else`, `while`, `break`, `return`, functions, `_jump`, and `choice` to express game logic safely.</p>
         <p>This site is a single-page companion for WebRogue: it tells the language story, showcases five complete example programs, explains the interesting static checks, and links directly back to the GitHub compiler repository.</p>
@@ -162,8 +163,9 @@ print "Two states are ready.";</code></pre>
         <div class="profile">
           <div>
             <h2>Developer</h2>
-            <p><strong>Jacob Martinez</strong> built WebRogue as a compiler project that brings static checking to browser game scripting. The language is intentionally small but strong enough to catch broken state transitions, bad types, invalid choice menus, and non-returning functions before generation.</p>
-            <p>Jacob's work focuses on making program structure visible in a way that supports both author productivity and compiler correctness.</p>
+            <p>My name is <strong>Jacob Martinez</strong> and I built WebRogue as a compiler project that brings static checking to browser game scripting. The language is intentionally small but strong enough to catch broken state transitions, bad types, invalid choice menus, and non-returning functions before generation.</p>
+            <p>My work focuses on making program structure visible in a way that makes programming more accessible for begginer game designers specifically with a lightweight approach.</p>
+            <p>I worked on this project as an assignemnt for my coursework. If I had more time, I would have liked to add a rendering feature to more mimick a lightweight game engine.</p>
             <p>Find the compiler source on GitHub: <a href="https://github.com/JMartLMU/WebRogue">github.com/JMartLMU/WebRogue</a>.</p>
           </div>
         </div>
@@ -269,7 +271,6 @@ print "Two states are ready.";`
         button.disabled = true;
         button.textContent = "Running...";
         outputDiv.textContent = "Compiling and running...";
-        outputDiv.style.display = "block";
         outputDiv.classList.remove("error");
 
         try {
@@ -292,7 +293,7 @@ print "Two states are ready.";`
           // Restore console.log
           console.log = originalLog;
 
-          outputDiv.textContent = output.trim() || "Program completed (no output)";
+          outputDiv.textContent = output.trim() || "Program completed successfully (no output)";
         } catch (error) {
           outputDiv.textContent = `Error: ${error.message}`;
           outputDiv.classList.add("error");
