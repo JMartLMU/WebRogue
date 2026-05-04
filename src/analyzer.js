@@ -85,6 +85,8 @@ export default function analyze(program) {
         if (statement.alternate) collectStateDeclarations(statement.alternate)
       } else if (statement.kind === "WhileStatement" || statement.kind === "FunctionDeclaration") {
         collectStateDeclarations(statement.body)
+      } else if (statement.kind === "ChoiceStatement") {
+        for (const arm of statement.arms) collectStateDeclarations(arm.body)
       }
     }
   }
@@ -126,6 +128,40 @@ export default function analyze(program) {
 
   function mustHaveSameType(left, right, node) {
     must(core.equivalent(left.type, right.type), "Operands must have the same type", node)
+  }
+
+  function mustHaveNoDuplicates(names, description, node) {
+    const seen = new Set()
+    for (const name of names) {
+      must(!seen.has(name), `Duplicate ${description} ${name}`, node)
+      seen.add(name)
+    }
+  }
+
+  function analyzeInteractiveInput(input, description) {
+    if (input.mode === "num" || input.mode === "keyboard") return input
+    const picker = lookup(input.name, input)
+    must(picker.kind === "Function", `${input.name} is not a ${description} input function`, input)
+    must(
+      picker.params.length === 0,
+      `${description[0].toUpperCase()}${description.slice(1)} input function ${input.name} must not require arguments`,
+      input
+    )
+    must(
+      picker.returnType === core.stringType || picker.returnType === core.numberType,
+      `${description[0].toUpperCase()}${description.slice(1)} input function ${input.name} must return string or number`,
+      input
+    )
+    input.declaration = picker
+    return input
+  }
+
+  function analyzeChoiceInput(input) {
+    return analyzeInteractiveInput(input, "choice")
+  }
+
+  function analyzeDialogueInput(input) {
+    return analyzeInteractiveInput(input, "dialogue")
   }
 
   function analyzeStatements(statements) {
@@ -235,6 +271,30 @@ export default function analyze(program) {
       return s
     },
 
+    ChoiceStatement(s) {
+      must(!context.function, "Choice cannot appear inside a function", s)
+      s.input = analyzeChoiceInput(s.input)
+      must(s.arms.length > 0, "Choice must have at least one option block", s)
+      const armNames = s.arms.map(arm => arm.name)
+      const optionNames = s.options.length > 0 ? s.options : armNames
+      mustHaveNoDuplicates(armNames, "option block", s)
+      mustHaveNoDuplicates(optionNames, "choice option", s)
+      const options = new Set(optionNames)
+      const arms = new Set(armNames)
+      for (const name of armNames) {
+        must(options.has(name), `Option block ${name} is not listed in the choice`, s)
+      }
+      for (const name of optionNames) {
+        must(arms.has(name), `Choice option ${name} has no option block`, s)
+      }
+      s.optionNames = optionNames
+      s.arms = s.arms.map(arm => ({
+        ...arm,
+        body: withChildContext({}, () => analyzeStatements(arm.body)),
+      }))
+      return s
+    },
+
     FunctionDeclaration(d) {
       mustNotAlreadyBeDeclaredHere(d.name, d)
       const params = d.params.map(param => ({
@@ -304,6 +364,9 @@ export default function analyze(program) {
             must(object.kind === "Object", `${id.name} is not an object`, id)
             return object
           })
+        } else if (field.name === "dialogue") {
+          field.input = analyzeDialogueInput(field.input)
+          must(field.lines.length > 0, "Dialogue must include at least one line", field)
         }
       }
       for (const requiredField of ["title", "description", "contains"]) {

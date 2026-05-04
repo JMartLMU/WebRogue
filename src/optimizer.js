@@ -120,6 +120,16 @@ const optimizers = {
     return d
   },
 
+  ChoiceStatement(s) {
+    s.arms = s.arms.map(optimize)
+    return s
+  },
+
+  ChoiceArm(a) {
+    a.body = optimize(a.body)
+    return a
+  },
+
   ExpressionStatement(s) {
     s.expression = optimize(s.expression)
     return s

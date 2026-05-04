@@ -75,6 +75,36 @@ const astBuilder = grammar.createSemantics().addOperation("ast", {
     return core.jumpStatement(id.sourceString, location(this))
   },
 
+  ChoiceStmt(_choice, _open, input, options, _close, _blockOpen, arms, _blockClose) {
+    return core.choiceStatement(
+      input.ast(),
+      optional(options, []),
+      arms.children.map(arm => arm.ast()),
+      location(this)
+    )
+  },
+
+  ChoiceInput_keyboard(_keyboard, _dot, key) {
+    return core.choiceInput("keyboard", `keyboard.${key.sourceString}`, key.sourceString, location(this))
+  },
+
+  ChoiceInput_id(id) {
+    const name = id.sourceString
+    return core.choiceInput(name === "num" ? "num" : "custom", name, null, location(this))
+  },
+
+  ChoiceOptions(_comma, ids) {
+    return ids.ast().map(id => id.name)
+  },
+
+  ChoiceArm_block(_option, id, block) {
+    return core.choiceArm(id.sourceString, block.ast(), location(this))
+  },
+
+  ChoiceArm_colon(_option, id, _colon, block) {
+    return core.choiceArm(id.sourceString, block.ast(), location(this))
+  },
+
   ExpStmt(exp, _semicolon) {
     return core.expressionStatement(exp.ast(), location(this))
   },
@@ -131,6 +161,19 @@ const astBuilder = grammar.createSemantics().addOperation("ast", {
 
   StateField_contains(_contains, _colon, _open, ids, _close, _semicolon) {
     return core.stateField("contains", optionalList(ids), location(this))
+  },
+
+  StateField_dialogue(dialogueField) {
+    return dialogueField.ast()
+  },
+
+  DialogueField(_dialogue, _open, input, _comma, strings, _close, _semicolon) {
+    const [prompt, ...lines] = strings.ast()
+    return core.dialogueField(input.ast(), prompt, lines, location(this))
+  },
+
+  DialogueStrings(strings) {
+    return strings.asIteration().children.map(string => string.ast().value)
   },
 
   IdList(ids) {

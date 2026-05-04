@@ -1,0 +1,18 @@
+let playerHp: number = 10;
+let enemyHp: number = 6;
+
+print "Choose an action:";
+
+choice(num, Attack, Heal) {
+  option Attack {
+    enemyHp = enemyHp - 2;
+    print "Attacked.";
+    print enemyHp;
+  }
+
+  option Heal {
+    playerHp = playerHp + 2;
+    print "Healed.";
+    print playerHp;
+  }
+}

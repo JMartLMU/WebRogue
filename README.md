@@ -16,8 +16,10 @@ Browser games often start as loose JavaScript objects and event handlers. WebRog
 - Functions with typed parameters and typed return types
 - Function calls and expression statements
 - `object` declarations for game objects
-- `state` declarations with `title`, `description`, and `contains`
+- `state` declarations with `title`, `description`, `contains`, and optional `dialogue(...)`
 - `_jump(StateName);` state transitions, inspired by Ren'Py page/label jumps
+- `choice(...)` statements for CLI player choices with numbered, keyboard, or custom picker input
+- State dialogue sequences that progress line-by-line from the command line
 - Arithmetic, comparison, equality, boolean, and unary expressions
 - Line comments beginning with `//`
 - JavaScript generation for runnable scripts and plain JS game objects
@@ -42,6 +44,11 @@ The analyzer performs these checks before optimization or code generation:
 - States must include `title`, `description`, and `contains`.
 - State `contains` entries must reference declared objects and cannot repeat an object.
 - `_jump` targets must be declared states. Forward jumps to later state declarations are allowed.
+- Choice options and `option` blocks must match one another and cannot repeat names.
+- Custom choice input functions must exist, take no arguments, and return `string` or `number`.
+- `choice` statements are rejected inside WebRogue functions because generated choices await CLI input.
+- State dialogue must include a prompt plus at least one dialogue line.
+- Custom dialogue input functions follow the same zero-argument `string` / `number` return rule as choices.
 
 ## State Model
 
@@ -65,9 +72,62 @@ function _jump(targetState) {
 _jump("Entry");
 ```
 
+
+
+## State Dialogue
+
+A state may define one dialogue sequence. The first argument selects how the player advances the dialogue, the second argument is the prompt, and the remaining strings are the dialogue lines:
+
+```wr
+state Example {
+  title: "Dialogue Example";
+  description: "A state with line-by-line CLI dialogue.";
+  contains: [];
+  dialogue(keyboard.space, "Press space to progress dialogue", "first line", "middle line", "last line");
+}
+
+_jump(Example);
+```
+
+When `_jump(Example);` loads the state, the generated JavaScript prints the first line immediately, waits for the configured input, then continues through the remaining lines. In the CLI, `keyboard.space` accepts typing `space`, pressing Space then Enter, or pressing Enter at the prompt.
+## Choice Input
+
+Choices are CLI-oriented game-flow statements. A numbered choice prints each option, waits for the player to enter a number, and runs the matching `option` block:
+
+```wr
+choice(num, Attack, Heal) {
+  option Attack {
+    enemyHp = enemyHp - 2;
+    print "Attacked.";
+  }
+
+  option Heal {
+    playerHp = playerHp + 2;
+    print "Healed.";
+  }
+}
+```
+
+The option list may also be inferred from the option blocks:
+
+```wr
+choice(num) {
+  option Attack { print "attack"; }
+  option Heal { print "heal"; }
+}
+```
+
+Supported input modes are:
+
+- `num`: display a numbered list and read the selected number.
+- `keyboard.key`: read a line and choose the first option only when the entered key matches `key`.
+- A custom picker function: a declared zero-argument WebRogue function returning `string` or `number`.
+
+`choice` is intended for top-level game flow and may appear in ordinary blocks such as `if` and `while`, but not inside function bodies.
+
 ## Not Implemented
 
-WebRogue is not a game engine. It does not implement general arrays, field access, object literals, imports, browser DOM helpers, sprites, maps, or runtime movement APIs. The only list syntax is the checked `contains: [ObjectName, ...]` state field. Function and object declarations are checked in declaration order, so ordinary calls and object references must refer to earlier declarations. `_jump` is the exception: it may target a state declared later in the program.
+WebRogue is not a game engine. It does not implement general arrays, field access, object literals, imports, browser DOM helpers, sprites, maps, or runtime movement APIs. Choice and dialogue input currently target Node/CLI execution rather than browser UI widgets. The only list syntax is the checked `contains: [ObjectName, ...]` state field. Function and object declarations are checked in declaration order, so ordinary calls and object references must refer to earlier declarations. `_jump` is the exception: it may target a state declared later in the program.
 
 The return-path checker is intentionally modest. It handles direct `return` statements and `if` / `else` statements whose branches both return. It does not try to prove that a `while true` loop always returns.
 
@@ -168,6 +228,8 @@ More complete examples live in `examples/`:
 - `examples/loop.wr`
 - `examples/functions.wr`
 - `examples/tiny-dungeon.wr`
+- `examples/choice.wr`
+- `examples/dialogue.wr`
 - `examples/errors/bad-type.wr` is intentionally invalid and should fail analysis.
 
 ## Install And Test
@@ -193,8 +255,8 @@ You should see:
 
 ```text
 Welcome to WebRogue!
-Mira
-enters the dungeon.
+Adventurer
+enters the dungeon. Hello Adventurer!
 ```
 
 That command parses, analyzes, optimizes, generates JavaScript, and executes the generated JavaScript so WebRogue `print` statements appear as terminal output.
@@ -219,6 +281,8 @@ node src/webrogue.js examples/combat.wr analyzed
 node src/webrogue.js examples/loop.wr optimized
 node src/webrogue.js examples/states.wr js
 node src/webrogue.js examples/tiny-dungeon.wr run
+node src/webrogue.js examples/choice.wr run
+node src/webrogue.js examples/dialogue.wr run
 ```
 
 You can also use the npm script:
@@ -272,6 +336,34 @@ node src/webrogue.js examples/tiny-dungeon.wr run
 ready
 entered Entry
 10
+```
+
+```sh
+node src/webrogue.js examples/choice.wr run
+```
+
+When prompted, enter `1` to take the attack option.
+
+```text
+Choose an action:
+1. Attack
+2. Heal
+> 1
+Attacked.
+4
+```
+
+```sh
+node src/webrogue.js examples/dialogue.wr run
+```
+
+Press Enter or type `space` when prompted.
+
+```text
+first line
+Press space to progress dialogue middle line
+Press space to progress dialogue last line
+dialogue complete
 ```
 
 ```sh

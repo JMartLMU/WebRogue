@@ -176,6 +176,39 @@ console.log((!alive));
     )
   })
 
+
+
+  it("generates JavaScript for state dialogue", () => {
+    const js = compileToJs(`
+      state Example {
+        title: "Example";
+        description: "Here";
+        contains: [];
+        dialogue(keyboard.space, "Press space", "first", "last");
+      }
+      _jump(Example);
+    `)
+    assert.match(js, /async function __webrogueWaitForDialogue/)
+    assert.match(js, /const __webrogueStates = new Map\(\);/)
+    assert.match(js, /dialogue: async function\* \(\)/)
+    assert.match(js, /await __webrogueWaitForDialogue\("keyboard\.space", "Press space"\);/)
+    assert.match(js, /await _jump\("Example"\);/)
+  })
+  it("generates JavaScript for choices and custom input functions", () => {
+    const js = compileToJs(`
+      function pick() -> string {
+        return "Attack";
+      }
+      choice(pick, Attack, Heal) {
+        option Attack { print "hit"; }
+        option Heal { print "heal"; }
+      }
+    `)
+    assert.match(js, /async function __webrogueChoice/)
+    assert.match(js, /await __webrogueChoice\(pick, \["Attack","Heal"\]\);/)
+    assert.match(js, /if \(__webrogueChoice_1 === "Attack"\)/)
+    assert.match(js, /else if \(__webrogueChoice_1 === "Heal"\)/)
+  })
   it("keeps JavaScript reserved words safe", () => {
     assert.equal(compileToJs("let class = 1; print class;"), "let _class = 1;\nconsole.log(_class);")
   })

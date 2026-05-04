@@ -9,8 +9,8 @@ const examples = [
     "hello.wr",
     [
       "Welcome to WebRogue!",
-      "Mira",
-      "enters the dungeon.",
+      "Adventurer",
+      "enters the dungeon. Hello Adventurer!",
     ],
   ],
   [
@@ -39,22 +39,42 @@ const examples = [
     ],
   ],
   ["functions.wr", ["Mira"]],
-  ["tiny-dungeon.wr", ["ready", "entered Entry", "10"]],
+  [
+    "choice.wr",
+    [
+      "Choose an action:",
+      "1. Attack",
+      "2. Heal",
+      "Attacked.",
+      "4",
+    ],
+    ["1"],
+  ],
+  [
+    "dialogue.wr",
+    ["first line", "middle line", "last line", "dialogue complete"],
+    ["space", "space"],
+  ],  ["tiny-dungeon.wr", ["ready", "entered Entry", "10"]],
 ]
 
-function outputFrom(source) {
+async function outputFrom(source, input = []) {
   const lines = []
-  runJavaScript(compile(source, "js"), {
-    log: line => lines.push(line),
-  })
+  let index = 0
+  await runJavaScript(
+    compile(source, "js"),
+    {
+      log: line => lines.push(line),
+    },
+    async () => input[index++] ?? ""
+  )
   return lines
 }
 
 describe("The examples", () => {
-  for (const [file, expectedOutput] of examples) {
-    it(`prints expected output for ${file}`, () => {
+  for (const [file, expectedOutput, input] of examples) {
+    it(`prints expected output for ${file}`, async () => {
       const source = readFileSync(new URL(`../examples/${file}`, import.meta.url), "utf8")
-      assert.deepEqual(outputFrom(source), expectedOutput)
+      assert.deepEqual(await outputFrom(source, input), expectedOutput)
     })
   }
 })

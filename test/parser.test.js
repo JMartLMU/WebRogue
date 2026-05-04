@@ -10,6 +10,8 @@ const goodExampleFiles = [
   "loop.wr",
   "functions.wr",
   "tiny-dungeon.wr",
+  "choice.wr",
+  "dialogue.wr",
 ]
 
 const syntaxChecks = [
@@ -31,6 +33,12 @@ const syntaxChecks = [
     'object Hero { hp: number = 10; } state Start { title: "Start"; description: "Here"; contains: [Hero]; }',
   ],
   ["state transition", 'state Start { title: "Start"; description: "Here"; contains: []; } _jump(Start);'],
+  ["numbered choice", "choice(num, Attack, Heal) { option Attack { print 1; } option Heal { print 2; } }"],
+  ["keyboard choice", "choice(keyboard.a, Attack) { option Attack: { print 1; } }"],
+  [
+    "state dialogue",
+    'state Example { title: "Example"; description: "Here"; contains: []; dialogue(keyboard.space, "Press space", "first", "last"); }',
+  ],
   ["operator precedence", "print 2 + 3 * 4 > 10 and not false;"],
   ["greater-than-or-equal", "print 5 >= 4;"],
   ["function calls", "function f(x: number) -> number { return x; } print f(1);"],

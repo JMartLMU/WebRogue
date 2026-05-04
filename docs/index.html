@@ -14,7 +14,7 @@
           <h1>WebRogue</h1>
           <p class="tagline">
             A compact statically checked language for browser roguelike scripts: declare objects,
-            wire states, jump between pages, and compile the result to readable JavaScript.
+            wire states, progress dialogue, offer player choices, jump between pages, and compile the result to readable JavaScript.
           </p>
         </div>
       </div>
@@ -31,11 +31,11 @@
         <div class="grid">
           <article class="tile">
             <h3>Game declarations</h3>
-            <p>Objects compile to JavaScript objects. States require titles, descriptions, and object references.</p>
+            <p>Objects compile to JavaScript objects. States require titles, descriptions, object references, and can include line-by-line dialogue.</p>
           </article>
           <article class="tile">
             <h3>Static checks</h3>
-            <p>Types, scopes, returns, breaks, calls, duplicate names, state contents, and jumps are checked before generation.</p>
+            <p>Types, scopes, returns, breaks, calls, duplicate names, state contents, jumps, choice options, and dialogue input are checked before generation.</p>
           </article>
           <article class="tile">
             <h3>Compiler phases</h3>
@@ -55,10 +55,14 @@ state Start {
   title: "Dungeon Entrance";
   description: "Cold air leaks from the stone archway.";
   contains: [Player];
+  dialogue(keyboard.space, "Press space", "First line", "Last line");
 }
 
 _jump(Start);
-print "The first state is ready.";</code></pre>
+choice(num, Attack, Rest) {
+  option Attack { print "Attack."; }
+  option Rest { print "Rest."; }
+}</code></pre>
       </section>
 
       <section>
@@ -66,11 +70,11 @@ print "The first state is ready.";</code></pre>
         <div class="grid">
           <article class="tile">
             <h3>Working</h3>
-            <p>Primitive types, functions, control flow, objects, states, checked jumps, static analysis, optimization, and JS output.</p>
+            <p>Primitive types, functions, control flow, objects, states, checked jumps, CLI choices, state dialogue, static analysis, optimization, and JS output.</p>
           </article>
           <article class="tile warning">
             <h3>Not implemented</h3>
-            <p>General arrays, object literals, field access, imports, browser runtime helpers, and a game engine runtime.</p>
+            <p>General arrays, object literals, field access, imports, browser choice/dialogue widgets, browser runtime helpers, and a game engine runtime.</p>
           </article>
         </div>
       </section>

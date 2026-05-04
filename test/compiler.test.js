@@ -33,9 +33,9 @@ describe("The compiler", () => {
     assert.equal(compile(source), 'let name = "Mira";\nconsole.log(name);')
   })
 
-  it("runs generated JavaScript through the CLI runner", () => {
+  it("runs generated JavaScript through the CLI runner", async () => {
     const lines = []
-    runJavaScript('console.log("ok", 7);', { log: line => lines.push(line) })
+    await runJavaScript('console.log("ok", 7);', { log: line => lines.push(line) })
     assert.deepEqual(lines, ["ok 7"])
   })
 
@@ -98,6 +98,31 @@ describe("The compiler", () => {
     }
   })
 
+
+  it("runs generated JavaScript that awaits dialogue", async () => {
+    const lines = []
+    const input = ["space", "space"]
+    let index = 0
+    await runJavaScript(
+      compile(
+        'state Example { title: "Example"; description: "Here"; contains: []; dialogue(keyboard.space, "next", "first", "middle", "last"); } _jump(Example);',
+        "js"
+      ),
+      { log: line => lines.push(line) },
+      async () => input[index++] ?? "space"
+    )
+    assert.deepEqual(lines, ["first", "middle", "last"])
+  })
+  it("runs generated JavaScript that awaits a choice", async () => {
+    const lines = []
+    await runJavaScript(
+      compile('choice(num, Attack) { option Attack { print "hit"; } }', "js"),
+      { log: line => lines.push(line) },
+      async () => "1"
+    )
+    assert.deepEqual(lines, ["1. Attack", "hit"])
+  })
+
   it("reports CLI compiler helper errors cleanly", async () => {
     const lines = []
     const code = await compileFromFile("missing-file.wr", "js", {
@@ -145,6 +170,38 @@ describe("The compiler", () => {
     }
   })
 
+
+
+  it("runs interactive dialogue from the command-line entry point", () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        fileURLToPath(new URL("../src/webrogue.js", import.meta.url)),
+        fileURLToPath(new URL("../examples/dialogue.wr", import.meta.url)),
+        "run",
+      ],
+      { encoding: "utf8", input: "space" }
+    )
+    const output = result.stdout.replace(/\r\n/g, "\n")
+    assert.equal(result.status, 0)
+    assert.match(output, /first line\nPress space to progress dialogue middle line\nPress space to progress dialogue last line\ndialogue complete/)
+    assert.equal(result.stderr, "")
+  })
+  it("runs an interactive choice from the command-line entry point", () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        fileURLToPath(new URL("../src/webrogue.js", import.meta.url)),
+        fileURLToPath(new URL("../examples/choice.wr", import.meta.url)),
+        "run",
+      ],
+      { encoding: "utf8", input: "1\n" }
+    )
+    const output = result.stdout.replace(/\r\n/g, "\n")
+    assert.equal(result.status, 0)
+    assert.match(output, /Choose an action:\n1\. Attack\n2\. Heal\n> Attacked\.\n4/)
+    assert.equal(result.stderr, "")
+  })
   it("runs the command-line entry point", async () => {
     const directory = await mkdtemp(join(tmpdir(), "webrogue-"))
     const file = join(directory, "program.wr")

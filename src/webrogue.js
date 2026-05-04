@@ -2,6 +2,8 @@
 
 import * as fs from "node:fs/promises"
 import * as vm from "node:vm"
+import { stdin, stdout } from "node:process"
+import { createInterface } from "node:readline/promises"
 import { pathToFileURL } from "node:url"
 import compile from "./compiler.js"
 
@@ -32,23 +34,57 @@ export function stringify(value) {
   )
 }
 
-export function runJavaScript(code, io = console) {
-  vm.runInNewContext(
-    code,
-    {
-      console: {
-        log: (...values) => io.log(values.map(String).join(" ")),
+let terminalInput = null
+let pipedInputLines = null
+
+async function readLineFromTerminal(prompt) {
+  if (!stdin.isTTY) {
+    stdout.write(prompt)
+    if (!pipedInputLines) {
+      const chunks = []
+      for await (const chunk of stdin) chunks.push(chunk)
+      pipedInputLines = Buffer.concat(chunks).toString().split(/\r?\n/)
+    }
+    return pipedInputLines.shift() ?? ""
+  }
+  /* c8 ignore start */
+  terminalInput ??= createInterface({ input: stdin, output: stdout })
+  return terminalInput.question(prompt)
+  /* c8 ignore stop */
+}
+
+function closeTerminalInput() {
+  /* c8 ignore start */
+  if (terminalInput) {
+    terminalInput.close()
+    terminalInput = null
+  }
+  /* c8 ignore stop */
+  pipedInputLines = null
+}
+
+export async function runJavaScript(code, io = console, readLine = readLineFromTerminal) {
+  try {
+    await vm.runInNewContext(
+      `(async () => {\n${code}\n})()`,
+      {
+        console: {
+          log: (...values) => io.log(values.map(String).join(" ")),
+        },
+        __webrogueReadLineHost: readLine,
       },
-    },
-    { timeout: 1000 }
-  )
+      { timeout: 1000 }
+    )
+  } finally {
+    if (readLine === readLineFromTerminal) closeTerminalInput()
+  }
 }
 
 export async function compileFromFile(filename, outputType = "js", io = console) {
   try {
     const source = await fs.readFile(filename, "utf8")
     if (outputType === "run") {
-      runJavaScript(compile(source, "js"), io)
+      await runJavaScript(compile(source, "js"), io)
     } else {
       io.log(stringify(compile(source, outputType)))
     }

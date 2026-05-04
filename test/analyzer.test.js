@@ -11,6 +11,8 @@ const goodExampleFiles = [
   "loop.wr",
   "functions.wr",
   "tiny-dungeon.wr",
+  "choice.wr",
+  "dialogue.wr",
 ]
 
 const goodPrograms = [
@@ -40,6 +42,30 @@ const goodPrograms = [
   [
     "state jump to a later declaration",
     '_jump(End); object Hero { hp: number = 10; } state Start { title: "Start"; description: "Here"; contains: [Hero]; } state End { title: "End"; description: "There"; contains: [Hero]; }',
+  ],
+  [
+    "numbered choice",
+    "let enemyHp = 6; choice(num, Attack, Heal) { option Attack { enemyHp = enemyHp - 2; } option Heal { enemyHp = enemyHp + 1; } }",
+  ],
+  [
+    "choice with inferred options",
+    "choice(num) { option Attack { print 1; } option Heal { print 2; } }",
+  ],
+  [
+    "keyboard choice",
+    "choice(keyboard.a, Attack) { option Attack: { print 1; } }",
+  ],
+  [
+    "custom choice input function",
+    'function pick() -> string { return "Attack"; } choice(pick, Attack) { option Attack { print "ok"; } }',
+  ],
+  [
+    "state dialogue",
+    'state Example { title: "Example"; description: "Here"; contains: []; dialogue(keyboard.space, "Press space", "first", "last"); }',
+  ],
+  [
+    "state dialogue with custom input",
+    'function nextLine() -> string { return "space"; } state Example { title: "Example"; description: "Here"; contains: []; dialogue(nextLine, "Press space", "first"); }',
   ],
   [
     "nonvoid if else return",
@@ -131,6 +157,61 @@ const badPrograms = [
     /Hero is not an object/,
   ],
   ["unknown jump state", "_jump(Missing);", /State Missing not declared/],
+  [
+    "choice arm not listed",
+    "choice(num, Attack) { option Heal { print 1; } }",
+    /Option block Heal is not listed/,
+  ],
+  [
+    "choice option missing block",
+    "choice(num, Attack, Heal) { option Attack { print 1; } }",
+    /Choice option Heal has no option block/,
+  ],
+  [
+    "duplicate choice option",
+    "choice(num, Attack, Attack) { option Attack { print 1; } }",
+    /Duplicate choice option Attack/,
+  ],
+  [
+    "duplicate option block",
+    "choice(num) { option Attack { print 1; } option Attack { print 2; } }",
+    /Duplicate option block Attack/,
+  ],
+  [
+    "choice inside function",
+    "function f() { choice(num, Attack) { option Attack { print 1; } } return; }",
+    /Choice cannot appear inside a function/,
+  ],
+  [
+    "unknown custom choice input",
+    "choice(pick, Attack) { option Attack { print 1; } }",
+    /Identifier pick not declared/,
+  ],
+  [
+    "non-function custom choice input",
+    "let pick = 1; choice(pick, Attack) { option Attack { print 1; } }",
+    /pick is not a choice input function/,
+  ],
+  [
+    "custom choice input with arguments",
+    "function pick(x: number) -> string { return \"Attack\"; } choice(pick, Attack) { option Attack { print 1; } }",
+    /Choice input function pick must not require arguments/,
+  ],
+  [
+    "custom choice input wrong return type",
+    "function pick() -> boolean { return true; } choice(pick, Attack) { option Attack { print 1; } }",
+    /Choice input function pick must return string or number/,
+  ],
+  [
+    "empty state dialogue",
+    'state Example { title: "Example"; description: "Here"; contains: []; dialogue(keyboard.space, "Press space"); }',
+    /Dialogue must include at least one line/,
+  ],
+  [
+    "state dialogue custom input with arguments",
+    'function nextLine(x: number) -> string { return "space"; } state Example { title: "Example"; description: "Here"; contains: []; dialogue(nextLine, "Press space", "first"); }',
+    /Dialogue input function nextLine must not require arguments/,
+  ],
   ["void variable", "let nope: void = 1;", /Void is only valid/],
 ]
 

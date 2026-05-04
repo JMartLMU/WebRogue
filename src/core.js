@@ -108,8 +108,24 @@ export function stateField(name, value, at) {
   return { kind: "StateField", name, value, at }
 }
 
+export function dialogueField(input, prompt, lines, at) {
+  return { kind: "StateField", name: "dialogue", input, prompt, lines, at }
+}
+
 export function jumpStatement(targetName, at) {
   return { kind: "JumpStatement", targetName, at }
+}
+
+export function choiceStatement(input, options, arms, at) {
+  return { kind: "ChoiceStatement", input, options, arms, at }
+}
+
+export function choiceInput(mode, name, key, at) {
+  return { kind: "ChoiceInput", mode, name, key, at }
+}
+
+export function choiceArm(name, body, at) {
+  return { kind: "ChoiceArm", name, body, at }
 }
 
 export function expressionStatement(expression, at) {
