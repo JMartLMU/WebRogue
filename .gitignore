@@ -29,8 +29,8 @@ coverage
 .grunt
 
 # Build artifacts
-docs/*.js
-docs/*.ohm
+# docs/*.js  # Temporarily commented out so website works
+# docs/*.ohm  # Temporarily commented out so website works
 
 # Bower dependency directory (https://bower.io/)
 bower_components
