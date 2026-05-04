@@ -205,23 +205,24 @@ nav.actions a:hover {
   margin-top: 12px;
   padding: 12px;
   background: #0b1311;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 6px;
   font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
   font-size: 14px;
   white-space: pre-wrap;
-  color: var(--ink);
+  color: var(--muted);
   min-height: 40px;
   display: block;
+  font-style: italic;
 }
 
-.example-output:empty::before {
-  content: "Click 'Run Example' to see output here";
-  color: var(--muted);
-  font-style: italic;
+.example-output:not(:empty) {
+  color: var(--ink);
+  font-style: normal;
 }
 
 .example-output.error {
   border-color: var(--danger);
   color: var(--danger);
+  font-style: normal;
 }
