@@ -1,0 +1,5 @@
+# GitHub Pages configuration for WebRogue
+title: "WebRogue"
+description: "A compact, statically checked scripting language for browser roguelike flow"
+url: "https://jmartlmu.github.io"
+baseurl: "/webrogue"
